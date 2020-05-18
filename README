@@ -1,0 +1,11 @@
+Data Download process:
+
+Download dataset from NuScenes website
+Upload dataset to Google drive 
+[1st time only] git clone https://github.com/circulosmeos/gdown.pl
+$ ./gdown.pl 'gdrive file url' ['desired file name']  
+Eg: $ ./gdown.pl https://drive.google.com/file/d/0B1L_hFrWJfRhLUJZdXdSdTdfSWs/edit axolotl.mp4
+Unzip ip file:
+.tar file: tar -xf file.name.tar -C /path/to/directory
+.tgz file: tar -zxvf file.name.tgz -C /path/to/directory
+
