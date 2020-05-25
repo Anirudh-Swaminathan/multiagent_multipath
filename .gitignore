@@ -2,7 +2,7 @@
 *.pl
 
 #ignore nuscenes
-nuscenes-devkit
+nuscenes_devkit
 
 #ignore all zipped tar files
 *.tar
