@@ -1,3 +1,10 @@
+Organisation:
+gdown.pl contains downloader from drive
+nuscenes-devkit allows us to interact with dataset
+network where we store all network related content
+data where we store all data related content
+utils where we store all the additional scripting to assist the network
+
 Data Download process:
 
 Download dataset from NuScenes website
@@ -8,4 +15,8 @@ Eg: $ ./gdown.pl https://drive.google.com/file/d/0B1L_hFrWJfRhLUJZdXdSdTdfSWs/ed
 Unzip ip file:
 .tar file: tar -xf file.name.tar -C /path/to/directory
 .tgz file: tar -zxvf file.name.tgz -C /path/to/directory
+
+
+Data Interaction Process:
+
 
