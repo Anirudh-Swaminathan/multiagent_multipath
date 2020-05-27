@@ -18,7 +18,8 @@ class nuScenesdata(Dataset):
 
         data_path = "/home/krungta/ECE_285/data/sets/nuscenes/" #path to data stored
         self.nusc = NuScenes(version='v1.0-mini', dataroot=data_path, verbose=True)
-#         nusc_map = NuScenesMap(dataroot=data_path, map_name='singapore-onenorth')
+        #self.nusc_map = NuScenesMap(dataroot=data_path)
+        print(self.nusc.list_scenes())
 
 
     def __len__(self):
