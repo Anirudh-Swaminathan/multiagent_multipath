@@ -59,7 +59,7 @@ class MultiagentEnv:
         return self._state()
             
     def _state(self):
-        locations=[agent.location for agent in self. vehicles]
-        velocities=[agent.velocity for agent in self. vehicles]
+        locations=[agent.location for agent in self.vehicles]
+        velocities=[agent.velocity for agent in self.vehicles]
         return locations, velocities
         
