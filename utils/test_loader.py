@@ -19,7 +19,8 @@ params = {'batch_size': 1,
           'drop_last': True,
           'num_workers': 1}
 
-dataset = nuScenesdata()
+# set_name: {'train', 'val', 'test', 'mini_train', 'mini_val', 'train_detect', 'train_track'}
+dataset = nuScenesdata(set_name = "mini_train")
 dataloader = DataLoader(dataset, **params)
 
 for batch, data in enumerate(dataloader):
