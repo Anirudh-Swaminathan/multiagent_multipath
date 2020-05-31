@@ -7,15 +7,32 @@ TR=3
 
 class Agent:
     # Velocity: m/s
-    def __init__(self, location, direction, intention, radius, dt):
+    def __init__(self, location, direction, intention, dt):
         self.location=location
-        self.velocity=np.random.uniform(low=10, high=20)*direction/np.linalg.norm(direction)
+        self.velocity=np.random.uniform(low=20, high=60)*direction/np.linalg.norm(direction)
         self.intention=intention
         self.dt=dt
-        self.radius=radius
         
     def step(self):
         self.location=self.location+self.velocity*self.dt
+        
+    def set_goal(self, goal_loc, goal_vel):
+        self.goal_loc=goal_loc
+        self.goal_vel=goal_vel/np.linalg.norm(goal_vel)
+        
+    def turn_check(self):
+        sdir=self.velocity[-1::-1]*np.array([-1,1])
+        sdir=sdir/np.linalg.norm(sdir)
+        gdir=self.goal_vel[-1::-1]*np.array([-1,1])
+        d=self.location-self.goal_loc
+        theta1=np.arccos(np.abs(d@gdir/np.linalg.norm(d)))
+        theta2=np.arccos(np.abs(d@sdir/np.linalg.norm(d)))
+        if np.abs(np.pi/2-theta1)<1e-2:
+            return None
+        if np.abs(theta1-theta2)<1e-2:
+            return np.linalg.norm(d)/2/np.cos(theta1)
+        else:
+            return None
         
     def execute_intention(self):
         if self.intention==FW:
@@ -25,13 +42,23 @@ class Agent:
             if np.linalg.norm(self.velocity)<0.1:
                 self.velocity=self.velocity*0
         elif self.intention==TL:
-            dir=self.velocity[-1::-1]*np.array([-1,1])
-            dvdt=np.linalg.norm(self.velocity)**2/self.radius
-            self.velocity=self.velocity+dvdt*dir/np.linalg.norm(dir)*self.dt
+            r=self.turn_check()
+            if r is not None:
+                dir=self.velocity[-1::-1]*np.array([-1,1])
+                dvdt=np.linalg.norm(self.velocity)**2/r
+                self.velocity=self.velocity+dvdt*dir/np.linalg.norm(dir)*self.dt
+                if np.arccos(self.velocity@self.goal_vel/np.linalg.norm(self.velocity))<1e-2:
+                    self.velocity=np.linalg.norm(self.velocity)*self.goal_vel
+                    self.intention=FW
         elif self.intention==TR:
-            dir=self.velocity[-1::-1]*np.array([1,-1])
-            dvdt=np.linalg.norm(self.velocity)**2/self.radius
-            self.velocity=self.velocity+dvdt*dir/np.linalg.norm(dir)*self.dt
+            r=self.turn_check()
+            if r is not None:
+                dir=self.velocity[-1::-1]*np.array([1,-1])
+                dvdt=np.linalg.norm(self.velocity)**2/r
+                self.velocity=self.velocity+dvdt*dir/np.linalg.norm(dir)*self.dt
+                if np.arccos(self.velocity@self.goal_vel/np.linalg.norm(self.velocity))<1e-2:
+                    self.velocity=np.linalg.norm(self.velocity)*self.goal_vel
+                    self.intention=FW
             
 
 class MultiagentEnv:
@@ -49,17 +76,17 @@ class MultiagentEnv:
         
         init_=[scene.starting_points[i] for i in np.random.choice(len(self.scene.starting_points), self.n)]
         for p in init_:
-            self.vehicles.append(Agent(p[0], p[1], p[2], np.random.uniform(20,30),self.dt))
+            a=Agent(p[0], p[1], p[2], self.dt)
+            a.set_goal(p[3], p[4])
+            self.vehicles.append(a)
             
     def step(self):
         for agent in self.vehicles:
-            if self.scene.check_intention(agent):
-                agent.execute_intention()
+            agent.execute_intention()
             agent.step()
         return self._state()
             
     def _state(self):
-        locations=[agent.location for agent in self.vehicles]
-        velocities=[agent.velocity for agent in self.vehicles]
+        locations=[agent.location for agent in self. vehicles]
+        velocities=[agent.velocity for agent in self. vehicles]
         return locations, velocities
-        

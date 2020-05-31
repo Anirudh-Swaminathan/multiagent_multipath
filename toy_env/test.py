@@ -4,28 +4,28 @@ from matplotlib import patches
 from env import MultiagentEnv
 import math
 
+FW=0
+SP=1
+TL=2
+TR=3
+
 
 class ExampleScene:
     def __init__(self):
-        self.starting_points = [(np.random.uniform(0, 100, 2), np.random.uniform(0, 100, 2), np.random.choice(4)) for i
-                                in range(6)]
-
-    def check_intention(self, agent):
-        if agent.location[0] > -20 and agent.location[0] < 70 and agent.location[1] > -20 and agent.location[1] < 70:
-            return np.random.choice([0, 1], p=[0.2, 0.8])
+        # Start location, start velocity direction, intention, goal location, goal velocity direction
+        self.starting_points=[(np.array([10, -100]), np.array([0,1]), TL, np.array([-40,20]), np.array([-1,0])),
+                 (np.array([20,-100]), np.array([0,1]), TR, np.array([40,40]), np.array([1,0]))]
 
 
 class IntersectionScene:
     def __init__(self):
-        self.starting_points = [(np.random.uniform(0, 100, 2), np.random.uniform(0, 100, 2), np.random.choice(4)) for i
-                                in range(6)]
+#         self.starting_points = [(np.random.uniform(0, 100, 2), np.random.uniform(0, 100, 2), np.random.choice(4)) for i
+#                                 in range(6)]
+        self.starting_points=[(np.array([10, -100]), np.array([0,1]), TL, np.array([-40,10]), np.array([-1,0])),
+                 (np.array([20,-100]), np.array([0,1]), TR, np.array([40,30]), np.array([1,0]))]
         # bottom left coordinate and top right coordinate
         self.intersection_bounds = [(-40, -40), (40, 40)]
         self.image_bounds = [(-200, -200), (200, 200)]
-
-    def check_intention(self, agent):
-        if agent.location[0] > -20 and agent.location[0] < 70 and agent.location[1] > -20 and agent.location[1] < 70:
-            return np.random.choice([0, 1], p=[0.2, 0.8])
 
     def get_scene_image(self):
         # initialize fully black image
@@ -76,14 +76,15 @@ class IntersectionScene:
 
 
 if __name__ == '__main__':
-    n = 2
+    n = 5
     scene = IntersectionScene()
-    env = MultiagentEnv(scene, 0.1, n)
+#     scene = ExampleScene()
+    env = MultiagentEnv(scene, 0.001, n)
     ls = []
     vs = []
     # 4 seconds of image+trajectory; predict the next 6 seconds, probably
     disp_time = 40
-    for i in range(100):
+    for i in range(6000):
         l, v = env.step()
         ls.append(l)
         vs.append(v)
