@@ -11,6 +11,7 @@ class Agent:
         self.location=location
         self.velocity=np.random.uniform(low=20, high=60)*direction/np.linalg.norm(direction)
         self.intention=intention
+        self.brake_flag=False
         self.dt=dt
         
     def step(self):
@@ -38,9 +39,12 @@ class Agent:
         if self.intention==FW:
             pass
         elif self.intention==SP:
-            self.velocity=self.velocity*0.1**(self.dt/3)
-            if np.linalg.norm(self.velocity)<0.1:
-                self.velocity=self.velocity*0
+            if np.linalg.norm(self.location-self.goal_loc)<1e-1:
+                self.brake_flag=True
+            if self.brake_flag:
+                self.velocity=self.velocity*0.1**(self.dt/3)
+                if np.linalg.norm(self.velocity)<0.1:
+                    self.velocity=self.velocity*0
         elif self.intention==TL:
             r=self.turn_check()
             if r is not None:
