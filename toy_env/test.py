@@ -47,6 +47,24 @@ class IntersectionScene:
         #plt.show()
         return img
 
+    
+    def dir_to_angle(self, dir_vec):
+        dvec = dir_vec / np,linalg.norm(dir_vec)
+        return np.atan2(dvec[1], dvec[0])
+
+    
+    def plot_scene(self, ls, vs):
+        ls = np.array(ls)
+        vs = np.array(vs)
+        scene_img = self.get_scene_image()
+        print(scene_img.shape, scene_img.dtype)
+        plt.xlim(self.image_bounds[0][0], self.image_bounds[1][0])
+        plt.ylim(self.image_bounds[0][1], self.image_bounds[1][1])
+        plt.imshow(scene_img, cmap='gray', extent=(self.image_bounds[0][0], self.image_bounds[1][0], self.image_bounds[0][1], self.image_bounds[1][1]))
+        for i in range(n):
+            plt.scatter(ls[:, i, 0], ls[:, i, 1])
+        plt.show()
+
 
 
 if __name__ == '__main__':
@@ -59,18 +77,4 @@ if __name__ == '__main__':
         l, v = env.step()
         ls.append(l)
         vs.append(v)
-    ls = np.array(ls)
-    vs = np.array(vs)
-    scene_img = scene.get_scene_image()
-    print(scene_img.shape, scene_img.dtype)
-    #plt.xlim(scene.image_bounds[0][0], scene.image_bounds[1][0])
-    #plt.ylim(scene.image_bounds[0][1], scene.image_bounds[1][1])
-    #plt.imshow(scene_img, cmap='gray', extent=(scene.image_bounds[0][0], scene.image_bounds[1][0], scene.image_bounds[0][1], scene.image_bounds[1][1]))
-    #plt.show()
-
-    plt.xlim(scene.image_bounds[0][0], scene.image_bounds[1][0])
-    plt.ylim(scene.image_bounds[0][1], scene.image_bounds[1][1])
-    plt.imshow(scene_img, cmap='gray', extent=(scene.image_bounds[0][0], scene.image_bounds[1][0], scene.image_bounds[0][1], scene.image_bounds[1][1]))
-    for i in range(n):
-        plt.scatter(ls[:, i, 0], ls[:, i, 1])
-    plt.show()
+    scene.plot_scene(ls, vs)
