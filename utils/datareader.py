@@ -82,20 +82,44 @@ class nuScenesdata(Dataset):
                 
 #         #extract the sample and get all the data (agents) pertaining to that
 #         sample = self.helper.get_annotations_for_sample(sample_token)
-        
+        print("Index number: ", idx)
+        if len(list(instance_sample_tokens.keys())) != NUM_AGENTS:
+            print("Instance_sample_tokens: \n", instance_sample_tokens)
+        output_data = {"coordinates": [], "heading_change_rate": []} 
+        '''
+        Format: 
+        {coordinates: [[coord_at_t0, coord_at_t1, coord_at_t2, ..., coord_at_tTAJECTORY_TIME_INTERVAL],...numDatapointsInScene ], 
+         heading_change_rate; [[h_at_t0, h_at_t1, h_at_t2, ..., h_at_tTAJECTORY_TIME_INTERVAL], ...numDatapointaInScene] 
+        }
+        '''
         for instance_token in instance_sample_tokens.keys():
 #             instance_token = instance_tokens[0]
-            sample_token = instance_sample_tokens[instance_token][0] #Temporarily getting the first sample_token for a given instance_token
-            instance_time_interval = len(instance_sample_tokens[instance_token]) #Number of available sample_tokens for a given instance_token
+#             print("===============================================")
+            instance_coordinates = []
+            instance_heading_change_rate = []
+            for sample_token in instance_sample_tokens[instance_token]:
+#                 print(self.nusc.get('sample', sample_token)["timestamp"]) 
+#             sample_token = instance_sample_tokens[instance_token][0] #Temporarily getting the first sample_token for a given instance_token
+#                 instance_time_interval = len(instance_sample_tokens[instance_token]) #Number of available sample_tokens for a given instance_token
+
+                #get all the future data for the sample
+#                 future_instance_global = self.helper.get_future_for_agent(instance_token,sample_token, seconds=TRAJECTORY_TIME_INTERVAL, in_agent_frame = False)
+
+                #how to get the annotation for the instance in the sample
+                annotation = self.helper.get_sample_annotation(instance_token, sample_token)
+                instance_coordinates.append(annotation["translation"])
+            
+                #get the heading change rate of the agent
+                heading_change_rate = self.helper.get_heading_change_rate_for_agent(instance_token, sample_token)
+                instance_heading_change_rate.append(heading_change_rate)
+                
+            
+            output_data["coordinates"].append(instance_coordinates)
+            output_data["heading_change_rate"].append(instance_heading_change_rate)
+            
+        print("Printing Output data")
+        print(len(output_data["coordinates"]))
+        print(len(output_data["heading_change_rate"]))
         
-            #get all the future data for the sample
-            future_instance_global = self.helper.get_future_for_agent(instance_token,sample_token, seconds=TRAJECTORY_TIME_INTERVAL, in_agent_frame = False)
-
-            #how to get the annotation for the instance in the sample
-#             annotation = self.helper.get_sample_annotation(instance_token, sample_token)
-
-            #get the heading change rate of the agent
-            heading_change_rate = self.helper.get_heading_change_rate_for_agent(instance_token, sample_token)
-
-            return scene
+        return output_data
         
