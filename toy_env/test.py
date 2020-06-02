@@ -19,13 +19,121 @@ class ExampleScene:
 
 class IntersectionScene:
     def __init__(self):
-#         self.starting_points = [(np.random.uniform(0, 100, 2), np.random.uniform(0, 100, 2), np.random.choice(4)) for i
-#                                 in range(6)]
-        self.starting_points=[(np.array([10, -100]), np.array([0,1]), TL, np.array([-40,10]), np.array([-1,0])),
-                 (np.array([20,-100]), np.array([0,1]), TR, np.array([40,30]), np.array([1,0]))]
         # bottom left coordinate and top right coordinate
         self.intersection_bounds = [(-40, -40), (40, 40)]
         self.image_bounds = [(-200, -200), (200, 200)]
+
+        # maximum distance away from intersection to generate the vehicle
+        self.closeness = 175
+        self.vw = 10
+        self.vh = 20
+
+        self.starting_points = list()
+        # bottom lane => x in (intersection_bounds+vehicle_width/2, intersection_bounds-vehicle_width/2); y in (-(40+vehicle_length/2) to -(40 + closeness))
+        sbot_posx = np.random.uniform(self.intersection_bounds[0][0]+self.vw/2, self.intersection_bounds[1][0]-self.vw/2)
+        sbot_posy = np.random.uniform(self.intersection_bounds[0][1]-self.vh/2, self.intersection_bounds[0][1]-self.closeness)
+        sbot_pos = np.array([sbot_posx, sbot_posy])
+        # velocity towards top
+        sbot_vel = np.array([0, 1])
+        # random intent
+        sbot_int = np.random.choice(4)
+        # compute goal positions and directions
+        if sbot_int == FW or sbot_int == SP:
+            sbot_gol = np.array([sbot_posx, sbot_posy+150])
+            sbot_gvel = np.copy(sbot_vel)
+        elif sbot_int == TL:
+            sbot_gvel = np.array([-1, 0])
+            sbot_golx = np.random.uniform(self.intersection_bounds[0][0]-self.vh/2, self.intersection_bounds[0][0]-self.closeness)
+            sbot_goly = np.random.uniform(self.intersection_bounds[0][1]+self.vw/2, self.intersection_bounds[1][1]-self.vw/2)
+            sbot_gol = np.array([sbot_golx, sbot_goly])
+        elif sbot_int == TR:
+            sbot_gvel = np.array([1, 0])
+            sbot_golx = np.random.uniform(self.intersection_bounds[1][0]+self.vh/2, self.intersection_bounds[1][0]+self.closeness)
+            sbot_goly = np.random.uniform(self.intersection_bounds[0][1]+self.vw/2, self.intersection_bounds[1][1]-self.vw/2)
+            sbot_gol = np.array([sbot_golx, sbot_goly])
+        # append the entire state to a list
+        sbot = tuple((sbot_pos, sbot_vel, sbot_int, sbot_gol, sbot_gvel))
+        self.starting_points.append(sbot)
+
+
+        # top lane => x in (intersection_bounds+vehicle_width/2, intersection_bounds-vehicle_width/2); y in ((40+vehicle_length/2), (40 + closeness))
+        stop_posx = np.random.uniform(self.intersection_bounds[0][0]+self.vw/2, self.intersection_bounds[1][0]-self.vw/2)
+        stop_posy = np.random.uniform(self.intersection_bounds[1][1]+self.vh/2, self.intersection_bounds[1][1]+self.closeness)
+        stop_pos = np.array([stop_posx, stop_posy])
+        # velocity towards bottom
+        stop_vel = np.array([0, -1])
+        # random choice of turn
+        stop_int = np.random.choice(4)
+        # compute goal position and direction
+        if stop_int == FW or stop_int == SP:
+            stop_gvel = np.copy(stop_vel)
+            stop_gol = np.array([stop_posx, stop_posy-150]) 
+        elif stop_int == TL:
+            stop_gvel = np.array([1, 0])
+            stop_golx = np.random.uniform(self.intersection_bounds[1][0]+self.vh/2, self.intersection_bounds[1][0]+self.closeness)
+            stop_goly = np.random.uniform(self.intersection_bounds[0][1]+self.vw/2, self.intersection_bounds[1][1]-self.vw/2)
+            stop_gol = np.array([stop_golx, stop_goly])
+        elif stop_int == TR:
+            stop_gvel = np.array([-1, 0])
+            stop_golx = np.random.uniform(self.intersection_bounds[0][0]-self.vh/2, self.intersection_bounds[0][0]-self.closeness)
+            stop_goly = np.random.uniform(self.intersection_bounds[0][1]+self.vw/2, self.intersection_bounds[1][1]-self.vw/2)
+            stop_gol = np.array([stop_golx, stop_goly])
+        stop = tuple((stop_pos, stop_vel, stop_int, stop_gol, stop_gvel))
+        self.starting_points.append(stop)
+
+        # right lane => x in (intersection_bounds+vehicle_width/2, intersection_bounds+closeness); y in (-(40+vehicle_width/2), (40 + vehcile_width/2))
+        sr_posx = np.random.uniform(self.intersection_bounds[1][0]+self.vh/2, self.intersection_bounds[1][0]+self.closeness)
+        sr_posy = np.random.uniform(self.intersection_bounds[0][1]+self.vw/2, self.intersection_bounds[1][1]-self.vw/2)
+        sr_pos = np.array([sr_posx, sr_posy])
+        # velocity direction
+        sr_vel = np.array([-1, 0])
+        # intention
+        sr_int = np.random.choice(4)
+        # compute the goal positions and velocities
+        if sr_int == FW or sr_int == SP:
+            sr_gvel = np.copy(sr_vel)
+            sr_gol = np.array([sr_posx-150, sr_posy])
+        elif sr_int == TL:
+            sr_gvel = np.array([0, -1])
+            sr_golx = np.random.uniform(self.intersection_bounds[0][0]+self.vw/2, self.intersection_bounds[1][0]-self.vw/2)
+            sr_goly = np.random.uniform(self.intersection_bounds[0][1]-self.vh/2, self.intersection_bounds[0][1]-self.closeness)
+            sr_gol = np.array([sr_golx, sr_goly])
+        elif sr_int == TR:
+            sr_gvel = np.array([0, 1])
+            sr_golx = np.random.uniform(self.intersection_bounds[0][0]+self.vw/2, self.intersection_bounds[1][0]-self.vw/2)
+            sr_goly = np.random.uniform(self.intersection_bounds[1][1]+self.vh/2, self.intersection_bounds[1][1]+self.closeness)
+            sr_gol = np.array([sr_golx, sr_goly])
+        sr = tuple((sr_pos, sr_vel, sr_int, sr_gol, sr_gvel))
+        self.starting_points.append(sr)
+
+        # left lane => x in (-intersection_bounds-vehicle_width/2, -intersection_bounds-closeness); y in (-(40+vehicle_width/2), (40 + vehcile_width/2))
+        sl_posx = np.random.uniform(self.intersection_bounds[0][0]-self.vh/2, self.intersection_bounds[0][0]-self.closeness)
+        sl_posy = np.random.uniform(self.intersection_bounds[0][1]+self.vw/2, self.intersection_bounds[1][1]-self.vw/2)
+        sl_pos = np.array([sl_posx, sl_posy])
+        # velocity direction
+        sl_vel = np.array([1, 0])
+        # random intention
+        sl_int = np.random.choice(4)
+        # compute the goal positions and velocities
+        if sl_int == FW or sl_int == SP:
+            sl_gvel = np.copy(sl_vel)
+            sl_gol = np.array([sl_posx + 150, sl_posy])
+        elif sl_int == TL:
+            sl_gvel = np.array([0, 1])
+            sl_golx = np.random.uniform(self.intersection_bounds[0][0]+self.vw/2, self.intersection_bounds[1][0]-self.vw/2)
+            sl_goly = np.random.uniform(self.intersection_bounds[1][1]+self.vh/2, self.intersection_bounds[1][1]+self.closeness)
+            sl_gol = np.array([sl_golx, sl_goly])
+        elif sl_int == TR:
+            sl_gvel = np.array([0, -1])
+            sl_golx = np.random.uniform(self.intersection_bounds[0][0]+self.vw/2, self.intersection_bounds[1][0]-self.vw/2)
+            sl_goly = np.random.uniform(self.intersection_bounds[0][1]-self.vh/2, self.intersection_bounds[0][1]-self.closeness)
+            sl_gol = np.array([sl_golx, sl_goly])
+            
+        sl = tuple((sl_pos, sl_vel, sl_int, sl_gol, sl_gvel))
+        self.starting_points.append(sl)
+        print("There are {} possible starting points to choose 2 vehicles from".format(len(self.starting_points)))
+        for s in self.starting_points:
+            print(s)
 
     def get_scene_image(self):
         # initialize fully black image
@@ -76,18 +184,19 @@ class IntersectionScene:
 
 
 if __name__ == '__main__':
-    n = 5
+    n = 2
     scene = IntersectionScene()
 #     scene = ExampleScene()
     env = MultiagentEnv(scene, 0.001, n)
     ls = []
     vs = []
     # 4 seconds of image+trajectory; predict the next 6 seconds, probably
-    disp_time = 40
-    for i in range(6000):
+    total_frames = 6000
+    disp_time = np.rint(0.4*total_frames)
+    for i in range(total_frames):
         l, v = env.step()
         ls.append(l)
         vs.append(v)
-        if i == disp_time:
+        if i == disp_time or i == 0:
             scene.plot_scene(ls, vs)
     scene.plot_scene(ls, vs)
