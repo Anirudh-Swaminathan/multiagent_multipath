@@ -30,10 +30,10 @@ class Agent:
         theta2=np.arccos(np.abs(d@sdir/np.linalg.norm(d)))
         if np.abs(np.pi/2-theta1)<1e-2:
             return None
-        if np.abs(theta1-theta2)<1e-2:
+        if np.abs(theta2-theta1)<1e-2:
             return np.linalg.norm(d)/2/np.cos(theta1)
-        else:
-            return None
+        elif theta1-theta2>1e-2:
+            return 30
         
     def execute_intention(self):
         if self.intention==FW:
