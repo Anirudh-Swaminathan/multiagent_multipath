@@ -78,7 +78,8 @@ class MultiagentEnv:
         self.n=n
         self.vehicles=[]
         
-        init_=[scene.starting_points[i] for i in np.random.choice(len(self.scene.starting_points), self.n)]
+        #init_=[scene.starting_points[i] for i in np.random.choice(len(self.scene.starting_points), self.n)]
+        init_ = [scene.starting_points[i] for i in np.random.permutation(len(self.scene.starting_points))[:self.n]]
         for p in init_:
             a=Agent(p[0], p[1], p[2], self.dt)
             a.set_goal(p[3], p[4])
