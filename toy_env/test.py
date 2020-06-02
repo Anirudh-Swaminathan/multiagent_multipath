@@ -24,7 +24,7 @@ class IntersectionScene:
         self.image_bounds = [(-200, -200), (200, 200)]
 
         # maximum distance away from intersection to generate the vehicle
-        self.closeness = 175
+        self.closeness = 75
         self.vw = 10
         self.vh = 20
 
@@ -39,7 +39,7 @@ class IntersectionScene:
         sbot_int = np.random.choice(4)
         # compute goal positions and directions
         if sbot_int == FW or sbot_int == SP:
-            sbot_gol = np.array([sbot_posx, sbot_posy+150])
+            sbot_gol = np.array([sbot_posx, sbot_posy+self.closeness])
             sbot_gvel = np.copy(sbot_vel)
         elif sbot_int == TL:
             sbot_gvel = np.array([-1, 0])
@@ -67,7 +67,7 @@ class IntersectionScene:
         # compute goal position and direction
         if stop_int == FW or stop_int == SP:
             stop_gvel = np.copy(stop_vel)
-            stop_gol = np.array([stop_posx, stop_posy-150]) 
+            stop_gol = np.array([stop_posx, stop_posy-self.closeness]) 
         elif stop_int == TL:
             stop_gvel = np.array([1, 0])
             stop_golx = np.random.uniform(self.intersection_bounds[1][0]+self.vh/2, self.intersection_bounds[1][0]+self.closeness)
@@ -92,7 +92,7 @@ class IntersectionScene:
         # compute the goal positions and velocities
         if sr_int == FW or sr_int == SP:
             sr_gvel = np.copy(sr_vel)
-            sr_gol = np.array([sr_posx-150, sr_posy])
+            sr_gol = np.array([sr_posx-self.closeness, sr_posy])
         elif sr_int == TL:
             sr_gvel = np.array([0, -1])
             sr_golx = np.random.uniform(self.intersection_bounds[0][0]+self.vw/2, self.intersection_bounds[1][0]-self.vw/2)
@@ -117,7 +117,7 @@ class IntersectionScene:
         # compute the goal positions and velocities
         if sl_int == FW or sl_int == SP:
             sl_gvel = np.copy(sl_vel)
-            sl_gol = np.array([sl_posx + 150, sl_posy])
+            sl_gol = np.array([sl_posx + self.closeness, sl_posy])
         elif sl_int == TL:
             sl_gvel = np.array([0, 1])
             sl_golx = np.random.uniform(self.intersection_bounds[0][0]+self.vw/2, self.intersection_bounds[1][0]-self.vw/2)
