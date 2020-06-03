@@ -76,7 +76,6 @@ class nuScenesdata(Dataset):
         
         #get the tokens in the scene: we will be using the instance tokens as that is the agent in the scene
         tokens = [scene_tok.split("_") for scene_tok in scene_tokens]
-#         instance_tokens, sample_tokens = tokens[:][0], tokens[:][1] #List of instance tokens and sample tokens
         instance_tokens, sample_tokens = list(list(zip(*tokens))[0]), list(list(zip(*tokens))[1]) #List of instance tokens and sample tokens
         
         assert len(instance_tokens) == len(sample_tokens), "Instance and Sample tokens count does not match"
@@ -150,9 +149,9 @@ class nuScenesdata(Dataset):
                     instance_heading_change_rate.append([])
                 
                 
-                instance_token_img, sample_token_img = instance_token, sample_token
+                
 #                 anns = [ann for ann in self.nusc.sample_annotation if ann['instance_token'] == instance_token_img]
-                img = mtp_input_representation.make_input_representation(instance_token_img, sample_token_img)
+                img = mtp_input_representation.make_input_representation(instance_token, sample_token)
 #                 print("I am printing jack shit ==============================================================================================")
 #                 print(img.shape)
 #                 cv2.imshow("map",img)
