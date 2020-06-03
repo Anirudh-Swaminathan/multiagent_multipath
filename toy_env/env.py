@@ -95,16 +95,16 @@ class MultiagentEnv:
 
     def check_scene_collision(self, agent):
         # check the top right
-        if agent.location[0] > self.scene.intersection_bounds[1][0] and agent.location[1] > self.scene.intersection_bounds[1][1]:
+        if agent.location[0] > self.scene.intersection_bounds[1][0]-self.scene.vh/2 and agent.location[1] > self.scene.intersection_bounds[1][1]-self.scene.vh/2:
             return True
         # check top left
-        if agent.location[0] < self.scene.intersection_bounds[0][0] and agent.location[1] > self.scene.intersection_bounds[1][1]:
+        if agent.location[0] < self.scene.intersection_bounds[0][0]+self.scene.vh/2 and agent.location[1] > self.scene.intersection_bounds[1][1]-self.scene.vh/2:
             return True
         # check bottom left
-        if agent.location[0] < self.scene.intersection_bounds[0][0] and agent.location[1] < self.scene.intersection_bounds[0][1]:
+        if agent.location[0] < self.scene.intersection_bounds[0][0]+self.scene.vh/2 and agent.location[1] < self.scene.intersection_bounds[0][1]+self.scene.vh/2:
             return True
         # check bottom right
-        if agent.location[0] > self.scene.intersection_bounds[1][0] and agent.location[1] < self.scene.intersection_bounds[0][1]:
+        if agent.location[0] > self.scene.intersection_bounds[1][0]-self.scene.vh/2 and agent.location[1] < self.scene.intersection_bounds[0][1]+self.scene.vh/2:
             return True
         return False
 

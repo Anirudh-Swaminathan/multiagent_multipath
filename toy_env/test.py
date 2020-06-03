@@ -212,7 +212,7 @@ if __name__ == '__main__':
         else:
             future_ls.append(l)
             future_vs.append(v)
-        if i == disp_time or i == 0:
+        if i == disp_time:
             scene.plot_scene(past_ls, past_vs)
     if collided:
         print("Collision Occurred!!")
