@@ -1,0 +1,19 @@
+#ignore gdown and things inside it
+*.pl
+
+#ignore nuscenes
+nuscenes_devkit
+
+#ignore all zipped tar files
+*.tar
+*.tgz
+
+#ignore different data files
+*.ply
+*.jpg
+*.png
+*.xyz
+*.csv
+*.pcd
+*.json
+*.bin
