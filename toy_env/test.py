@@ -193,13 +193,38 @@ if __name__ == '__main__':
     env = MultiagentEnv(scene, 0.001, n)
     ls = []
     vs = []
+    past_ls = []
+    past_vs = []
+    future_ls = []
+    future_vs = []
     # 4 seconds of image+trajectory; predict the next 6 seconds, probably
     total_frames = 6000
     disp_time = np.rint(0.4*total_frames)
+    collided = False
     for i in range(total_frames):
-        l, v = env.step()
+        c, l, v = env.step()
+        collided = c or collided
         ls.append(l)
         vs.append(v)
+        if i <= disp_time:
+            past_ls.append(l)
+            past_vs.append(v)
+        else:
+            future_ls.append(l)
+            future_vs.append(v)
         if i == disp_time or i == 0:
-            scene.plot_scene(ls, vs)
-    scene.plot_scene(ls, vs)
+            scene.plot_scene(past_ls, past_vs)
+    if collided:
+        print("Collision Occurred!!")
+    else:
+        print("No Collisions occurred!")
+        # this plot can be changed to save. Only display/save if it did not have any collisions
+        # also save the past + future trajectories
+        # TODO save image + past + future trajectories
+        scene.plot_scene(past_ls, past_vs)
+        scene.plot_scene(ls, vs)
+        future_ls = np.array(future_ls)
+        future_vs = np.array(future_vs)
+        print(future_ls.shape)
+        print(future_vs.shape)
+

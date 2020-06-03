@@ -77,6 +77,8 @@ class MultiagentEnv:
         self.dt=dt
         self.n=n
         self.vehicles=[]
+        self.collided = False
+        self.collision_eps = 1e-1
         
         #init_=[scene.starting_points[i] for i in np.random.choice(len(self.scene.starting_points), self.n)]
         init_ = [scene.starting_points[i] for i in np.random.permutation(len(self.scene.starting_points))[:self.n]]
@@ -90,8 +92,47 @@ class MultiagentEnv:
             agent.execute_intention()
             agent.step()
         return self._state()
+
+    def check_scene_collision(self, agent):
+        # check the top right
+        if agent.location[0] > self.scene.intersection_bounds[1][0] and agent.location[1] > self.scene.intersection_bounds[1][1]:
+            return True
+        # check top left
+        if agent.location[0] < self.scene.intersection_bounds[0][0] and agent.location[1] > self.scene.intersection_bounds[1][1]:
+            return True
+        # check bottom left
+        if agent.location[0] < self.scene.intersection_bounds[0][0] and agent.location[1] < self.scene.intersection_bounds[0][1]:
+            return True
+        # check bottom right
+        if agent.location[0] > self.scene.intersection_bounds[1][0] and agent.location[1] < self.scene.intersection_bounds[0][1]:
+            return True
+        return False
+
+
+    def check_pair_collision(self, cur, nei):
+        dist = np.linalg.norm(cur.location - nei.location)
+        if dist < self.collision_eps:
+            return True
+        return False
+
             
     def _state(self):
         locations=[agent.location for agent in self. vehicles]
         velocities=[agent.velocity for agent in self. vehicles]
-        return locations, velocities
+        # check for collisions only if collisions were already not detected
+        if not self.collided:
+        # check collision for all vehicles with scene first
+            for i in range(len(self.vehicles)):
+                cur_a = self.vehicles[i]
+                col = self.check_scene_collision(cur_a)
+                self.collided = col or self.collided
+                if self.collided:
+                    break
+                # check for collision with its neighbors next
+                for j in range(i+1, len(self.vehicles), 1):
+                    coln = self.check_pair_collision(cur_a, self.vehicles[j])
+                    self.collided = coln or self.collided
+                    if self.collided:
+                        break
+        return self.collided,locations, velocities
+
