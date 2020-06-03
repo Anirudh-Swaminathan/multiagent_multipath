@@ -102,8 +102,7 @@ class nuScenesdata(Dataset):
         print("Index number: ", test_idx)
         if len(list(instance_sample_tokens.keys())) != NUM_AGENTS:
             print()
-#             print("Instance_sample_tokens: \n", instance_sample_tokens)
-        output_data = {"coordinates": [], "heading_change_rate": []} 
+#             print("Instance_sample_tokens: \n", instance_sample_tokens)         
         '''
         Format: 
         {coordinates: [[coord_at_t0, coord_at_t1, coord_at_t2, ..., coord_at_tTAJECTORY_TIME_INTERVAL],...numDatapointsInScene ], 
@@ -112,11 +111,13 @@ class nuScenesdata(Dataset):
         '''
         
         static_layer_rasterizer = StaticLayerRasterizer(self.helper)
-        agent_rasterizer = AgentBoxesWithFadedHistory(self.helper, seconds_of_history=0.25)
+        agent_rasterizer = AgentBoxesWithFadedHistory(self.helper, seconds_of_history=2.5)
         mtp_input_representation = InputRepresentation(static_layer_rasterizer, agent_rasterizer, Rasterizer())
         sliding_window = 5 #number of recordings to store per sample
         
-        for instance_token in instance_sample_tokens.keys():
+        output_data = {"coordinates": [0]*len(instance_sample_tokens.keys()), "heading_change_rate": [0]*len(instance_sample_tokens.keys()), "map":[0]*len(instance_sample_tokens.keys())}
+        
+        for t,instance_token in enumerate(instance_sample_tokens.keys()):
 #             instance_token = instance_tokens[0]
 #             print("===============================================")
             instance_coordinates = [[]]
@@ -158,11 +159,14 @@ class nuScenesdata(Dataset):
                 
             
 #             print(np.array(instance_coordinates[0:len(instance_coordinates)-1]))
-            output_data["coordinates"].append(instance_coordinates[0:len(instance_coordinates)-1])
-            output_data["heading_change_rate"].append(instance_heading_change_rate)
+            output_data["map"][t]=(img)
+            plt.imsave('test'+str(test_idx)+str(t)+'.jpg',img)
+            output_data["coordinates"][t]=(instance_coordinates[0:len(instance_coordinates)-1])
+            output_data["heading_change_rate"][t]=(instance_heading_change_rate)
 
-        test = pd.DataFrame(output_data,columns=["coordinates", "heading_change_rate"])
-        test.to_csv('test'+str(test_idx)+'.csv')
+#         test = pd.DataFrame(output_data,columns=["coordinates", "heading_change_rate", "map"])
+#         test.to_csv('test'+str(test_idx)+'.csv')
+
 #         print("Printing Output data")
 #         print((output_data["coordinates"]))
 #         print(len(output_data["heading_change_rate"]))
