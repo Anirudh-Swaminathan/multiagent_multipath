@@ -12,7 +12,6 @@ import os
 import csv
 from torch.utils.data import Dataset
 import imageio
-# from nuscenes_devkit.python_sdk.nuscenes import *
 from nuscenes.nuscenes import NuScenes
 from nuscenes.map_expansion.map_api import NuScenesMap
 from nuscenes.eval.prediction.splits import get_prediction_challenge_split
@@ -20,7 +19,6 @@ from nuscenes.prediction import PredictHelper
 from nuscenes.utils.splits import create_splits_scenes
 
 DATA_PATH = "../data/sets/nuscenes/" #path to data stored
-# DATA_PATH = "/home/krungta/ECE_285/data/sets/nuscenes/" #path to data stored
 NUM_AGENTS = 2
 TRAJECTORY_TIME_INTERVAL = 6
 
