@@ -24,5 +24,5 @@ dataset = nuScenesdata(set_name = "mini_train")
 dataloader = DataLoader(dataset, **params)
 
 for batch, data in enumerate(dataloader):
-    print(batch, (data))
+#     print(batch, (data))
     break

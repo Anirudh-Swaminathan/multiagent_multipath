@@ -17,6 +17,7 @@ nuscenes_devkit
 *.pcd
 *.json
 *.bin
+./data/zipped files
 
 #ignore Test files
 ./utils/Test.ipynb
