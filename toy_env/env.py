@@ -81,8 +81,8 @@ class MultiagentEnv:
         self.collision_eps = 1e-1
         
         #init_=[scene.starting_points[i] for i in np.random.choice(len(self.scene.starting_points), self.n)]
-        init_ = [scene.starting_points[i] for i in np.random.permutation(len(self.scene.starting_points))[:self.n]]
-        for p in init_:
+        self.init_ = [scene.starting_points[i] for i in np.random.permutation(len(self.scene.starting_points))[:self.n]]
+        for p in self.init_:
             a=Agent(p[0], p[1], p[2], self.dt)
             a.set_goal(p[3], p[4])
             self.vehicles.append(a)
