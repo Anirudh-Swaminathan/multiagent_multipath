@@ -174,6 +174,7 @@ class TrainNetwork(object):
         self.train_loader = td.Dataloader(self.training_dataset, batch_size=<batch_size>, shuffle=True, piin_memory=True)
         self.val_dataset = ToyDataset(root_dir=self.dataset_root_dir, mode="val")
         self.val_loader = td.Dataloader(self.val_dataset, batch_size=<batch_size>, pin_memory=True)
+        self._init_train_stuff()
 
     def _init_paths(self):
         # data loading
@@ -246,3 +247,13 @@ class TrainNetwork(object):
         exp_val = self.exp.evaluate()
         with open(self.op_dir+'val_result.txt', 'a') as t_file:
             print(exp_val, t_file)
+
+
+def main():
+    tn = TrainNetwork()
+    tn.run_exp()
+    tn.save_evaluation()
+
+
+if __name__ == '__main__':
+    main()
