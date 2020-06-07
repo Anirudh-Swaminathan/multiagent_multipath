@@ -128,10 +128,24 @@ class RNNPastProcess(nn.Module):
 
 class ScoringFunction(NNClassifier):
     def __init__(self):
-        pass
+        super(ScoringFunction, self).__init__()
+		self.model=nn.Sequential(
+			nn.Linear(64,128),
+			nn.ReLU(),
+			nn.Linear(128,128),
+			nn.ReLU(),
+			nn.Linear(128,32),
+			nn.ReLU(),
+			nn.Linear(32,1)
+		)
+		self.sm=nn.Softmax()
 
     def forward(self, x):
-        pass
+		# x: batch x 16 (# of modes) x 64 (32 scene+32 past)
+        y=self.model(x).squeeze()
+		y=self.sm(y)
+		return y
+		
 
 
 
