@@ -1,6 +1,6 @@
 import os
 import torch
-import imageio
+
 import numpy as np
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
@@ -25,6 +25,9 @@ dataset = toyScenesdata()
 dataloader = DataLoader(dataset, **params)
 
 for batch, data in enumerate(dataloader):
-    print(batch, (data))
-    cv2.imshow("map",data["map"])
+    print(batch, len(data))
+    print((data["map"]).shape)
+    map = np.array(data["map"][0,:])
+    cv2.imshow("map",map)
+    cv2.waitKey(0)
     break

@@ -41,9 +41,22 @@ class toyScenesdata(Dataset):
 
         coords = np.load(DATA_PATH+scene+"/ls.npy", allow_pickle=True)
         env_map = np.array(cv2.imread(DATA_PATH+scene+"/scene.png"))
-        gt = np.load(DATA_PATH+scene+"/init.npy", allow_pickle=True)
+        gt = np.array(np.load(DATA_PATH+scene+"/init.npy", allow_pickle=True))
+        new_gt = np.zeros((2,9))
+        count = 0
+        for sublist0,sublist1 in zip(gt[0,:],gt[1,:]):
+            if type(sublist0)!=int:
+                for item0,item1 in zip(sublist0,sublist1):
+                    new_gt[0,count] = item0
+                    new_gt[1,count] = item1
+                    count += 1
+            else:
+                new_gt[0,count] = item0
+                new_gt[1,count] = item1
+                count += 1
         #Initialise dictionary for returning data
-        output_data = {"map":env_map, "coords": coords, "ground_truth":gt}        
+        output_data = {"map":env_map, "coords":coords, "ground_truth":new_gt}
+
         return output_data
 
 
