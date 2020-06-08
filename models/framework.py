@@ -47,7 +47,8 @@ encoder.FLOAT_REPR = lambda o: format(o, '.3f')
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(device)
 
-
+#Initialize constants for the model
+PAST_TRAJECTORY_LENGTH = 5
 
 # class for the dataset
 class ToyDataset(td.Dataset):
@@ -105,25 +106,40 @@ class CNNSceneContext(nn.Module):
 
 
 
-class RNNAnchorProcess(nn.Module):
+# class RNNAnchorProcess(nn.Module):
+#     def __init__(self):
+#         pass
+
+#     def forward(self, x):
+#         pass
+
+
+# class RNNPastProcess(nn.Module):
+#     def __init__(self):
+#         pass
+
+#     def forward(self):
+#         pass
+
+
+#     def greedy_sample(self):
+#         """ Method to greedily sample from the RNN """
+#         pass
+
+class FCNPastProcess(nn.module):
     def __init__(self):
-        pass
+        super(FCNPastProcess, self).__init__()
+        self.fc1 = nn.Linear(PAST_TRAJECTORY_LENGTH*3, 200)
+        self.fc2 = nn.Linear(200, 200)
+        self.fc3 = nn.Linear(200, 10)
+        
 
     def forward(self, x):
-        pass
-
-
-class RNNPastProcess(nn.Module):
-    def __init__(self):
-        pass
-
-    def forward(self):
-        pass
-
-
-    def greedy_sample(self):
-        """ Method to greedily sample from the RNN """
-        pass
+        assert (x.size() == torch.Size([3,PAST_TRAJECTORY_LENGTH])), print("Incorrect tensor shape passed to FCN")
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return F.log_softmax(x)
 
 
 class ScoringFunction(NNClassifier):
