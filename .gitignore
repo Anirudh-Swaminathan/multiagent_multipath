@@ -8,6 +8,7 @@ nuscenes_devkit
 *.tar
 *.tgz
 *.tar
+*.zip
 
 #ignore different data files
 *.ply
