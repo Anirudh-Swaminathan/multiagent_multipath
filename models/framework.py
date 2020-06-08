@@ -126,7 +126,7 @@ class CNNSceneContext(nn.Module):
 #         """ Method to greedily sample from the RNN """
 #         pass
 
-class FCNPastProcess(nn.module):
+class FCNPastProcess(nn.Module):
     def __init__(self):
         super(FCNPastProcess, self).__init__()
         self.fc1 = nn.Linear(PAST_TRAJECTORY_LENGTH*3, 200)
@@ -141,27 +141,53 @@ class FCNPastProcess(nn.module):
         x = self.fc3(x)
         return F.log_softmax(x)
 
+        
+class IntentionEmbedding(nn.Module):
+    def __init__(self, fdim, out_dim):
+        # fdim: dim of past trajectory features
+        super(IntentionEmbedding, self).__init__()
+        self.emb=nn.Sequential(
+            nn.Linear(4, 32)
+        )
+        self.encode=nn.Sequential(
+            nn.Linear(32+fdim, 128),
+            nn.ReLU(),
+            nn.Linear(128,64),
+            nn.ReLU(),
+            nn.Linear(64, out_dim),
+            nn.ReLU()
+        )
+        
+        
+    def forward(self, x, intention):
+        # x: batch x n_vehicles x fdim, past trajectory features
+        # intention: batch x n_vehicles x 4, one-hot embedding of intentions
+        intention=self.emb(intention)
+        y=torch.cat((x, intention), dim=1)
+        y=self.encode(y)
+        return y
 
-class ScoringFunction(NNClassifier):
-    def __init__(self):
+
+class ScoringFunction(nn.Module):
+    def __init__(self, fdim):
         super(ScoringFunction, self).__init__()
-		self.model=nn.Sequential(
-			nn.Linear(64,128),
-			nn.ReLU(),
-			nn.Linear(128,128),
-			nn.ReLU(),
-			nn.Linear(128,32),
-			nn.ReLU(),
-			nn.Linear(32,1)
-		)
-		self.sm=nn.Softmax()
+        self.score=nn.Sequential(
+            nn.Linear(fdim,128),
+            nn.ReLU(),
+            nn.Linear(128,128),
+            nn.ReLU(),
+            nn.Linear(128,32),
+            nn.ReLU(),
+            nn.Linear(32,1)
+        )
+        #self.sm=nn.Softmax()
 
     def forward(self, x):
-		# x: batch x 16 (# of modes) x 64 (32 scene+32 past)
-        y=self.model(x).squeeze()
-		y=self.sm(y)
-		return y
-		
+        # x: batch x fdim (scene+past_intent_embedding)
+        y=self.score(x).squeeze()
+        #y=self.sm(y)
+        return y
+        
 
 
 
@@ -209,14 +235,14 @@ class TrainNetwork(object):
     def _init_paths(self):
         # data loading
         #TODO - change directories
-	self.dataset_root_dir = <dset_root>
-	self.train_dir = <dset_train>
-	self.val_dir = <dset_val> 
-	self.test_dir = <dset_test>
+        self.dataset_root_dir = <dset_root>
+        self.train_dir = <dset_train>
+        self.val_dir = <dset_val> 
+        self.test_dir = <dset_test>
 
-	# output directory for training checkpoints
-	# This changes for every experiment
-	self.op_dir = "../outputs/" + <op_dir>
+        # output directory for training checkpoints
+        # This changes for every experiment
+        self.op_dir = "../outputs/" + <op_dir>
 
     def _init_train_stuff(self):
         self.lr = 1e-3
@@ -229,41 +255,41 @@ class TrainNetwork(object):
 
  
     def myimshow(self, img, ax=plt):
-	image = image.to('cpu').numpy()
-	image = np.moveaxis(image, [0, 1, 2], [2, 0, 1])
-	image = (image + 1) / 2
-	image[image<0] = 0
-	image[image>1] = 1
-	h = ax.imshow(image)
-	ax.axis('off')
-	return h
+        image = image.to('cpu').numpy()
+        image = np.moveaxis(image, [0, 1, 2], [2, 0, 1])
+        image = (image + 1) / 2
+        image[image<0] = 0
+        image[image>1] = 1
+        h = ax.imshow(image)
+        ax.axis('off')
+        return h
 
 
     def plot(self, exp, fig, axes):
-	axes[0].clear()
-	axes[1].clear()
-	# Plot the training loss over the epochs
-	axes[0].plot([exp.history[k][0]['loss'] for k in range(exp.epoch)], label="training loss")
-	# Plot the evaluation loss over the epochs
-        axes[0].plot([exp.history[k][1]['loss'] for k in range(exp.epoch)], color='orange', label="evaluation loss")
-	# legend for the plot
-	axes[0].legend()
-	# xlabel and ylabel
-	axes[0].set_xlabel("Epoch")
-	axes[0].set_ylabel("Loss")
-	# Plot the training accuracy over the epochs
-	axes[1].plot([exp.history[k][0]['accuracy'] for k in range(exp.epoch)], label="training accuracy")
-	# Plot the evaluation accuracy over the epochs
-	axes[1].plot([exp.history[k][1]['accuracy'] for k in range(exp.epoch)], label="evaluation accuracy")
-	# legend for the plot
-	axes[1].legend()
-	# xlabel and ylabel
-	axes[1].set_xlabel("Epoch")
-	axes[1].set_ylabel("Accuracy")
-	plt.tight_layout()
-	# set the title for the figure
-	# fig.suptitle("Loss and Accuracy metrics")
-	fig.canvas.draw()
+        axes[0].clear()
+        axes[1].clear()
+        # Plot the training loss over the epochs
+        axes[0].plot([exp.history[k][0]['loss'] for k in range(exp.epoch)], label="training loss")
+        # Plot the evaluation loss over the epochs
+            axes[0].plot([exp.history[k][1]['loss'] for k in range(exp.epoch)], color='orange', label="evaluation loss")
+        # legend for the plot
+        axes[0].legend()
+        # xlabel and ylabel
+        axes[0].set_xlabel("Epoch")
+        axes[0].set_ylabel("Loss")
+        # Plot the training accuracy over the epochs
+        axes[1].plot([exp.history[k][0]['accuracy'] for k in range(exp.epoch)], label="training accuracy")
+        # Plot the evaluation accuracy over the epochs
+        axes[1].plot([exp.history[k][1]['accuracy'] for k in range(exp.epoch)], label="evaluation accuracy")
+        # legend for the plot
+        axes[1].legend()
+        # xlabel and ylabel
+        axes[1].set_xlabel("Epoch")
+        axes[1].set_ylabel("Accuracy")
+        plt.tight_layout()
+        # set the title for the figure
+        # fig.suptitle("Loss and Accuracy metrics")
+        fig.canvas.draw()
 
     def run_plot_exp(self):
         fig, axes = plt.subplots(ncols=2, figsize=(7, 3))
