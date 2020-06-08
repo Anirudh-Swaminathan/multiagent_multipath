@@ -33,31 +33,28 @@ class toyScenesdata(Dataset):
         print("Read in %d " % (len(self.scenes)))
 
         #get the training set
-        self.train_idx = np.random.choice(5000,NUM_TRAIN, replace = False)        
-        self.train_scenes = list(map(self.scenes.__getitem__,self.train_idx))
+        self.train_scenes = list(map(self.scenes.__getitem__,range(0,NUM_TRAIN)))
+        print(len(self.train_scenes))
 
-        #get remaining idxes
-        self.test_val_idx = list(filter(lambda elem: elem not in self.train_idx,range(NUM_TRAIN+NUM_VAL+NUM_TEST)))
+        #get test set        
+        self.test_scenes = list(map(self.scenes.__getitem__, range(NUM_TRAIN, NUM_TRAIN+NUM_TEST)))
+        print(len(self.test_scenes))
 
-        #get test set
-        self.test_idx = np.random.choice(self.test_val_idx,NUM_TEST, replace = False)
-        self.test_scenes = list(map(self.scenes.__getitem__,self.test_idx))
-
-        #get val set
-        self.val_idx = list(filter(lambda elem: elem not in self.test_idx and elem not in self.train_idx,range(NUM_TRAIN+NUM_VAL+NUM_TEST)))
-        self.val_scenes = list(map(self.scenes.__getitem__,self.val_idx))
+        #get val set        
+        self.val_scenes = list(map(self.scenes.__getitem__, range(NUM_TRAIN+NUM_TEST, NUM_TEST+NUM_TRAIN+NUM_VAL)))
+        print(len(self.val_scenes))
         
         
 
     def __len__(self):
         if self.set_name == "train":
-            return len(self.train_idx)
+            return len(self.train_scenes)
     
         if self.set_name == "test":
-            return len(self.test_idx)
+            return len(self.test_scenes)
     
         if self.set_name == "val":
-            return len(self.val_idx)
+            return len(self.val_scenes)
 
     def __getitem__(self, test_idx):
         
