@@ -14,8 +14,6 @@ import os
 import imageio
 from torch.utils.data import Dataset
 
-from torchvision.
-
 
 DATA_PATH = "../data/toydataset/" #path to data stored
 NUM_TRAIN = 3500

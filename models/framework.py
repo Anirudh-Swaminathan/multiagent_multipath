@@ -3,6 +3,9 @@
 # python2 and python3 compatibility between loaded modules
 from __future__ import print_function
 
+import sys
+sys.path.append("../")
+
 # All imports here
 # Reading files
 import os
@@ -36,7 +39,7 @@ from PIL import Image
 import re
 
 # import nntools
-import nntools_modified as nt
+import models.nntools_modified as nt
 
 # import add for fast addition between lists
 from operator import add
@@ -50,29 +53,26 @@ encoder.FLOAT_REPR = lambda o: format(o, '.3f')
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(device)
 
-#Initialize constants for the model
-PAST_TRAJECTORY_LENGTH = 5
-NUM_AGENTS = 2
-BATCH_SIZE = 16
+import utils.config as cfg
 
-# TODO - remove this unnecessary class
+# TODO - remove this unnecessary class #Done
 # class for the dataset
-class ToyDataset(td.Dataset):
-    """ Class to hold the Toy Dataset """
+# class ToyDataset(td.Dataset):
+#     """ Class to hold the Toy Dataset """
 
-    def __init__(self, root_dir, mode="train", image_size=(500, 500)):
-        super(ToyDataset, self).__init__()
-        self.image_size = image_size
-        self.mode = mode
+#     def __init__(self, root_dir, mode="train", image_size=(500, 500)):
+#         super(ToyDataset, self).__init__()
+#         self.image_size = image_size
+#         self.mode = mode
 
-    def __len__(self):
-        pass
+#     def __len__(self):
+#         pass
 
-    def __repr__(self):
-        return "ToyDataset(mode={}, image_size={})".format(self.mode, self.image_size)
+#     def __repr__(self):
+#         return "ToyDataset(mode={}, image_size={})".format(self.mode, self.image_size)
 
-    def __getitem__(self):
-        pass
+#     def __getitem__(self):
+#         pass
 
 
 
@@ -139,7 +139,7 @@ class FCNPastProcess(nn.Module):
         '''
 
         super(FCNPastProcess, self).__init__()
-        self.fc1 = nn.Linear(PAST_TRAJECTORY_LENGTH * NUM_AGENTS, 64)
+        self.fc1 = nn.Linear(cfg.PAST_TRAJECTORY_LENGTH * cfg.NUM_AGENTS * 2, 64)
         self.fc2 = nn.Linear(64, 64)
         self.fc3 = nn.Linear(64, fdim)
         
@@ -149,6 +149,7 @@ class FCNPastProcess(nn.Module):
         x dim: PAST_TRAJECTORY_LENGTH * NUM_AGENTS * BATCH_SIZE
         '''
         # assert (x.size() == torch.Size([2,PAST_TRAJECTORY_LENGTH])), print("Incorrect tensor shape passed to FCN")
+        print("In model: ", x.shape)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
@@ -259,35 +260,42 @@ class ToyStatsManager(nt.StatsManager):
 class TrainNetwork(object):
     def __init__(self):
         self._init_paths()
-        #TODO - change the options for the toy dataset, including batch size
+        #TODO - change the options for the toy dataset, including batch size #DONE
+        params = {'batch_size': cfg.BATCH_SIZE,
+          'shuffle': cfg.SHUFFLE,
+          'drop_last': cfg.DROP_LAST,
+          'num_workers': cfg.NUM_WORKERS}
+
         self.training_dataset = toyScenesdata()
-        self.train_loader = td.Dataloader(self.training_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True)
+        # self.train_loader = td.Dataloader(self.training_dataset, batch_size=cfg.BATCH_SIZE, shuffle=True, pin_memory=True)
+        self.train_loader = td.Dataloader(self.training_dataset, **params)
         self.val_dataset = toyScenesdata(set_name="val")
-        self.val_loader = td.Dataloader(self.val_dataset, batch_size=BATCH_SIZE, pin_memory=True)
+        self.val_loader = td.Dataloader(self.val_dataset, batch_size=cfg.BATCH_SIZE, pin_memory=True)
         self._init_train_stuff()
 
     def _init_paths(self):
         # data loading
         #TODO - change directories
-        self.dataset_root_dir = "../data/toydataset/"
+        self.dataset_root_dir = cfg.DATA_PATH
 
         # output directory for training checkpoints
         # This changes for every experiment
-        self.op_dir = "../outputs/" + <op_dir>
+        # self.op_dir = "../nntools_modifiedoutputs/" + <op_dir>
+        self.op_dir = cfg.OUTPUT_PATH #+ <experiment nunmber>
 
     def _init_train_stuff(self):
         self.lr = 1e-3
         # TODO Change these values
         self.n_intents = 4
-        self.scene_out = 32
-        self.intent_in = <>
-        self.intent_out = <>
-        self.score_out = <>
+        self.scene_out = 32 #fdim
+        # self.intent_in = <>
+        # self.intent_out = <>
+        # self.score_out = <>
         net = MultiAgentNetwork(self.n_intents, self.scene_out, self.intent_in, self.intent_out, self.score_out)
         self.net = net.to(device)
         self.adam = torch.optim.Adam(net.parameters(), lr=self.lr)
         self.stats_manager = ToyStatsManager()
-        # TODO - change the output_dir
+        # TODO - change the output_dir #DONE
         self.exp = nt.Experiment(self.net, self.training_dataset, self.val_dataset, self.adam, self.stats_manager, output_dir=self.op_dir, perform_validation_during_training=True)
 
  
