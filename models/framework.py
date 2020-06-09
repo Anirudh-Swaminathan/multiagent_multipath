@@ -49,6 +49,8 @@ print(device)
 
 #Initialize constants for the model
 PAST_TRAJECTORY_LENGTH = 5
+NUM_AGENTS = 2
+BATCH_SIZE = 16
 
 # class for the dataset
 class ToyDataset(td.Dataset):
@@ -127,15 +129,22 @@ class CNNSceneContext(nn.Module):
 #         pass
 
 class FCNPastProcess(nn.Module):
-    def __init__(self):
+    def __init__(self, fdim):
+        '''
+        fdim: Num channels in the output (number of intents)
+        '''
+
         super(FCNPastProcess, self).__init__()
-        self.fc1 = nn.Linear(PAST_TRAJECTORY_LENGTH*3, 200)
-        self.fc2 = nn.Linear(200, 200)
-        self.fc3 = nn.Linear(200, 10)
+        self.fc1 = nn.Linear(PAST_TRAJECTORY_LENGTH * NUM_AGENTS, 64)
+        self.fc2 = nn.Linear(64, 64)
+        self.fc3 = nn.Linear(64, fdim)
         
 
     def forward(self, x):
-        assert (x.size() == torch.Size([3,PAST_TRAJECTORY_LENGTH])), print("Incorrect tensor shape passed to FCN")
+        '''
+        x dim: PAST_TRAJECTORY_LENGTH * NUM_AGENTS * BATCH_SIZE
+        '''
+        # assert (x.size() == torch.Size([2,PAST_TRAJECTORY_LENGTH])), print("Incorrect tensor shape passed to FCN")
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
