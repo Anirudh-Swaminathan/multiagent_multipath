@@ -203,27 +203,46 @@ class ScoringFunction(nn.Module):
         return y
         
 class MultiAgentNetwork(NNClassifier):
-    def __init__(self, n_intents, scene_out, intent_in, intent_out, score_out, fine_tuning=True):
+    def __init__(self, n_intents, scene_out, intent_in, intent_out, score_in, fine_tuning=True):
         """
         n_intents - number of intents in dataset
         scene_out - dimension of the output for the scene parsing CNN
         intent_in - dimension of the input for the intention embedding
         intent_out - dimension of the output for the intention embedding
-        score_out - dimension of the output of the scoring module
+        score_in - dimension of the input of the scoring module
         """
         super(MultiAgentNetwork, self).__init__()
         self.scene = CNNSceneContext(scene_out, fine_tuning)  
         self.past = FCNPastProcess() 
         self.intent = IntentionEmbedding(intent_in, intent_out)
-        self.score = ScoringFunction(score_out)
+        self.score = ScoringFunction(scene_out+intent_out)
         self.n_intents = n_intents
         
 
     def forward(self, img, past_traj, gt_future):
         scene_output = self.scene(img)
         # TODO - check if shape[0] and shape[1] are correct
-        self.n_agents = past_traj.shape[0]
-        return scene_output, softmaxGroundTruth
+        n_agents = past_traj.shape[0]
+        n_modes = self.n_intents**n_agents
+        scores = torch.zeros(self.n_modes)
+        # TODO: compute past_output with self.FCNPastProcess
+        # TODO: compute ground truth tensor. (sum_{agent} (agent**self.n_intents)*agent_intention)
+        for mode in range(n_modes):
+            intentions = torch.zeros(past_output.shape[0], n_agents, self.n_intents)
+            for agent in n_agents:
+                intention_index = int(mode/self.n_intents**(agent))%self.n_intents
+                intentions[..., agent, intention_index] = 1
+            # past_output: (n_batch, n_vehicles, fdim)
+            traj_output = self.intent(past_output, intentions)
+            # traj_output: (n_batch, n_vehicles, intent_out)
+            traj_output = F.sum(traj_output, dim=1).squeeze() # or mean, or max
+            # traj_output: (n_batch, intent_out)
+            combined_output = torch.cat((scene_output, traj_output), dim=1)
+            # combined_output: (nbatch, scene_out+intent_out)
+            scores[mode] = self.score(combined_output)
+        #scores = F.softmax(scores)
+        return scores
+
 
 
 class ToyStatsManager(nt.StatsManager):
