@@ -36,7 +36,7 @@ from PIL import Image
 import re
 
 # import nntools
-import nntools as nt
+import nntools_modified as nt
 
 # import add for fast addition between lists
 from operator import add
