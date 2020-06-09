@@ -137,7 +137,7 @@ class FCNPastProcess(nn.Module):
         '''
         fdim: Num channels in the output (number of intents)
         '''
-
+        #TODO: Remove NUm_agents from FCN
         super(FCNPastProcess, self).__init__()
         self.fc1 = nn.Linear(cfg.PAST_TRAJECTORY_LENGTH * cfg.NUM_AGENTS * 2, 64)
         self.fc2 = nn.Linear(64, 64)
