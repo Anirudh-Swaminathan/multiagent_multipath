@@ -90,8 +90,3 @@ class toyScenesdata(Dataset):
         output_data = {"map":env_map, "coords":coords, "ground_truth":new_gt}
 
         return output_data
-
-
-if __name__ == "__main__":
-    
-    model = 

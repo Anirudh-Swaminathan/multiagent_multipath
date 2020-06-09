@@ -1,12 +1,18 @@
+import sys
+sys.path.append("../")
+
 import os
 import torch
 
 import numpy as np
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
+import torch.optim as optim
 from torchvision import transforms, utils
 import cv2
 from datareader_toy import toyScenesdata
+
+from models.framework import *
 # from nuscenes.map_expansion.map_api import NuScenesMap
 
 # CUDA for PyTorch
@@ -15,19 +21,48 @@ device = torch.device("cuda:0" if use_cuda else "cpu")
 # torch.backends.cudnn.benchmark = True
 
 # Parameters
-params = {'batch_size': 1,
+params = {'batch_size': 5,
           'shuffle': True,
-          'drop_last': False,
+          'drop_last': True,
           'num_workers': 1}
 
 # set_name: {'train', 'val', 'test', 'mini_train', 'mini_val', 'train_detect', 'train_track'}
 dataset = toyScenesdata()
 dataloader = DataLoader(dataset, **params)
 
-for batch, data in enumerate(dataloader):
-    print(batch, len(data))
-    print((data["map"]).shape)
-    map = np.array(data["map"][0,:])
-    cv2.imshow("map",map)
-    cv2.waitKey(0)
-    break
+
+
+
+if __name__ == "__main__":
+    
+    model = FCNPastProcess(32)
+
+    optimizer = optim.Adam(model.parameters(), lr = 0.01, weight_decays = 0.0001)
+    nEpochs = 10
+
+    for epoch in range(nEpochs):
+        torch.cuda.empty_cache()
+
+        for batch, data in enumerate(dataloader):
+            # print(batch, len(data))
+            # print((data["map"]).shape)
+            # map = np.array(data["map"][0,:])
+            # cv2.imshow("map",map)
+            # cv2.waitKey(0)
+            # break
+            coords, gt, = data["coords"], data["gt"]
+
+            optimizer.zero_grad()
+
+            out = model(coords)
+
+            #define loss function
+            criterion = nn.MSELoss()
+            loss = criterion(out, gt)
+            model.zero_grad()
+            loss.backward()
+            optimizer.zero_grad()
+            optimizer.step()
+
+            
+
