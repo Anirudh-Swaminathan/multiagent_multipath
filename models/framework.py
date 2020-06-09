@@ -188,7 +188,28 @@ class ScoringFunction(nn.Module):
         #y=self.sm(y)
         return y
         
+class MultiAgentNetwork(NNClassifier):
+    def __init__(self, n_intents, scene_out, intent_in, intent_out, score_out, fine_tuning=True):
+        """
+        n_intents - number of intents in dataset
+        scene_out - dimension of the output for the scene parsing CNN
+        intent_in - dimension of the input for the intention embedding
+        intent_out - dimension of the output for the intention embedding
+        score_out - dimension of the output of the scoring module
+        """
+        super(MultiAgentNetwork, self).__init__()
+        self.scene = CNNSceneContext(scene_out, fine_tuning)  
+        self.past = FCNPastProcess() 
+        self.intent = IntentionEmbedding(intent_in, intent_out)
+        self.score = ScoringFunction(score_out)
+        self.n_intents = n_intents
+        
 
+    def forward(self, img, past_traj):
+        f = self.scene(img)
+        # TODO - check if shape[0] and shape[1] are correct
+        self.n_agents = past_traj.shape[0]
+        return f
 
 
 class ToyStatsManager(nt.StatsManager):
@@ -246,7 +267,7 @@ class TrainNetwork(object):
 
     def _init_train_stuff(self):
         self.lr = 1e-3
-        net = ScoringFunction()
+        net = MultiAgentNetwork()
         self.net = net.to(device)
         self.adam = torch.optim.Adam(net.parameters(), lr=self.lr)
         self.stats_manager = ToyStatsManager()
@@ -271,7 +292,7 @@ class TrainNetwork(object):
         # Plot the training loss over the epochs
         axes[0].plot([exp.history[k][0]['loss'] for k in range(exp.epoch)], label="training loss")
         # Plot the evaluation loss over the epochs
-            axes[0].plot([exp.history[k][1]['loss'] for k in range(exp.epoch)], color='orange', label="evaluation loss")
+        axes[0].plot([exp.history[k][1]['loss'] for k in range(exp.epoch)], color='orange', label="evaluation loss")
         # legend for the plot
         axes[0].legend()
         # xlabel and ylabel
