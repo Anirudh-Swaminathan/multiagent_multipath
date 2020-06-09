@@ -7,6 +7,8 @@ nuscenes_devkit
 #ignore all zipped tar files
 *.tar
 *.tgz
+*.tar
+*.zip
 
 #ignore different data files
 *.ply
@@ -18,8 +20,8 @@ nuscenes_devkit
 *.json
 *.bin
 ./data/zipped files
+*.npy
 ./data/toydataset
-data/*
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/vim,python,pycharm+all
