@@ -20,6 +20,9 @@ import torch.utils.data as td
 import torchvision as tv
 from torch.nn.utils.rnn import pack_padded_sequence
 
+# import toy dataset class
+from utils.datareader_toy import toyScenesdata
+
 # Plotting images
 from matplotlib import pyplot as plt
 import skimage.io as io
@@ -52,6 +55,7 @@ PAST_TRAJECTORY_LENGTH = 5
 NUM_AGENTS = 2
 BATCH_SIZE = 16
 
+# TODO - remove this unnecessary class
 # class for the dataset
 class ToyDataset(td.Dataset):
     """ Class to hold the Toy Dataset """
@@ -214,11 +218,11 @@ class MultiAgentNetwork(NNClassifier):
         self.n_intents = n_intents
         
 
-    def forward(self, img, past_traj):
+    def forward(self, img, past_traj, gt_future):
         scene_output = self.scene(img)
         # TODO - check if shape[0] and shape[1] are correct
         self.n_agents = past_traj.shape[0]
-        return scene_output
+        return scene_output, softmaxGroundTruth
 
 
 class ToyStatsManager(nt.StatsManager):
@@ -256,19 +260,16 @@ class TrainNetwork(object):
     def __init__(self):
         self._init_paths()
         #TODO - change the options for the toy dataset, including batch size
-        self.training_dataset = ToyDataset(root_dir=self.dataset_root_dir)
-        self.train_loader = td.Dataloader(self.training_dataset, batch_size=<batch_size>, shuffle=True, piin_memory=True)
-        self.val_dataset = ToyDataset(root_dir=self.dataset_root_dir, mode="val")
-        self.val_loader = td.Dataloader(self.val_dataset, batch_size=<batch_size>, pin_memory=True)
+        self.training_dataset = toyScenesdata()
+        self.train_loader = td.Dataloader(self.training_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True)
+        self.val_dataset = toyScenesdata(set_name="val")
+        self.val_loader = td.Dataloader(self.val_dataset, batch_size=BATCH_SIZE, pin_memory=True)
         self._init_train_stuff()
 
     def _init_paths(self):
         # data loading
         #TODO - change directories
-        self.dataset_root_dir = <dset_root>
-        self.train_dir = <dset_train>
-        self.val_dir = <dset_val> 
-        self.test_dir = <dset_test>
+        self.dataset_root_dir = "../data/toydataset/"
 
         # output directory for training checkpoints
         # This changes for every experiment
@@ -287,7 +288,7 @@ class TrainNetwork(object):
         self.adam = torch.optim.Adam(net.parameters(), lr=self.lr)
         self.stats_manager = ToyStatsManager()
         # TODO - change the output_dir
-        self.exp = nt.Experiment(self.net, self.training_dataset, self.val_dataset, self.adam, self.stats_manager, output_dir=<output_dir>, perform_validation_during_training=True)
+        self.exp = nt.Experiment(self.net, self.training_dataset, self.val_dataset, self.adam, self.stats_manager, output_dir=self.op_dir, perform_validation_during_training=True)
 
  
     def myimshow(self, img, ax=plt):
