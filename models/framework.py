@@ -206,10 +206,10 @@ class MultiAgentNetwork(NNClassifier):
         
 
     def forward(self, img, past_traj):
-        f = self.scene(img)
+        scene_output = self.scene(img)
         # TODO - check if shape[0] and shape[1] are correct
         self.n_agents = past_traj.shape[0]
-        return f
+        return scene_output
 
 
 class ToyStatsManager(nt.StatsManager):
@@ -267,7 +267,13 @@ class TrainNetwork(object):
 
     def _init_train_stuff(self):
         self.lr = 1e-3
-        net = MultiAgentNetwork()
+        # TODO Change these values
+        self.n_intents = 4
+        self.scene_out = 32
+        self.intent_in = <>
+        self.intent_out = <>
+        self.score_out = <>
+        net = MultiAgentNetwork(self.n_intents, self.scene_out, self.intent_in, self.intent_out, self.score_out)
         self.net = net.to(device)
         self.adam = torch.optim.Adam(net.parameters(), lr=self.lr)
         self.stats_manager = ToyStatsManager()
