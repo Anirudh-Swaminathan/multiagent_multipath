@@ -212,6 +212,7 @@ class MultiAgentNetwork(NNClassifier):
         self.n_modes = self.n_intents**n_agents
         scores = torch.zeros(self.n_modes)
         # TODO: compute past_output with self.FCNPastProcess
+		# TODO: compute ground truth tensor. (sum_{agent} (agent**self.n_intents)*agent_intention)
         for mode in range(self.n_modes):
             intentions = torch.zeros(past_output.shape[0], n_agents, self.n_intents)
             for agent in self.n_agents:
