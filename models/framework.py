@@ -209,13 +209,13 @@ class MultiAgentNetwork(NNClassifier):
         scene_output = self.scene(img)
         # TODO - check if shape[0] and shape[1] are correct
         n_agents = past_traj.shape[0]
-        self.n_modes = self.n_intents**n_agents
+        n_modes = self.n_intents**n_agents
         scores = torch.zeros(self.n_modes)
         # TODO: compute past_output with self.FCNPastProcess
-		# TODO: compute ground truth tensor. (sum_{agent} (agent**self.n_intents)*agent_intention)
-        for mode in range(self.n_modes):
+        # TODO: compute ground truth tensor. (sum_{agent} (agent**self.n_intents)*agent_intention)
+        for mode in range(n_modes):
             intentions = torch.zeros(past_output.shape[0], n_agents, self.n_intents)
-            for agent in self.n_agents:
+            for agent in n_agents:
                 intention_index = int(mode/self.n_intents**(agent))%self.n_intents
                 intentions[..., agent, intention_index] = 1
             # past_output: (n_batch, n_vehicles, fdim)
