@@ -21,6 +21,7 @@ nuscenes_devkit
 *.bin
 ./data/zipped files
 *.npy
+./data/toydataset
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/vim,python,pycharm+all
