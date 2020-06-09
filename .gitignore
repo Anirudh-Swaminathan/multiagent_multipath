@@ -18,6 +18,8 @@ nuscenes_devkit
 *.json
 *.bin
 ./data/zipped files
+./data/toydataset
+data/*
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/vim,python,pycharm+all
