@@ -65,18 +65,18 @@ if __name__ == "__main__":
             coords, gt, = data["coords"], data["ground_truth"]
 
             #print input data shapes
-            # print(coords.shape)
-            # print("=============================")
-            # print(gt.shape)
+            print(coords.shape)
+            print("=============================")
+            print(gt.shape)
             optimizer.zero_grad()
             
             coords = downsample(coords)
             coords = coords[:,:5, :,:]
             coords_flatten = coords.permute(0,2,1,3)
-            # print(coords_flatten.shape)
+            print(coords_flatten.shape)
             print("-----------------------------------")
             coords_flatten = coords_flatten.flatten(1,3)
-            # print(coords_flatten.shape)
+            print(coords_flatten.shape)
             
             #num-batches * (num_agents * history)
             out = model(coords_flatten)
