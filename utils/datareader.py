@@ -5,6 +5,7 @@ import sys
 # sys.path.append('../nuscenes_devkit/python_sdk/')
 
 from collections import Counter
+from collections import OrderedDict
 from itertools import chain
 from typing import List
 import numpy as np
@@ -86,7 +87,7 @@ class nuScenesdata(Dataset):
         
         '''
         1. Convert list of sample and instance tokens into an ordered dict where sample tokens are the keys
-        2. Find n agents that have the most presence and store their instance tokens
+        2. Iterate over all combinations (of length TRAJECOTRY_TIME_INTERVAL) of consecutive samples 
         3. Form a list of data points where each data point has TRAJECOTRY_TIME_INTERVAL sample tokens where 
             each sample token has data for all instance tokens identified in step 2
         4. Create 3 numy arrays each for coordinates, heading_change_rate and map with appropriate shapes
@@ -96,8 +97,10 @@ class nuScenesdata(Dataset):
         
         
         
+        ordered_tokens = OrderedDict(zip(sample_tokens, instance_tokens))
         
-        
+        print("Printing Ordered_tokens: ", ordered_tokens)
+        return []
         
         
         
