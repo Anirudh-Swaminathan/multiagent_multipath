@@ -26,7 +26,7 @@ device = torch.device("cuda:0" if use_cuda else "cpu")
 # Parameters
 params = {'batch_size': cfg.BATCH_SIZE,
           'shuffle': cfg.SHUFFLE,
-          'drop_last': cfg.DROP_LAST,
+          'drop_last': False,
           'num_workers': cfg.NUM_WORKERS}
 
 # set_name: {'train', 'val', 'test', 'mini_train', 'mini_val', 'train_detect', 'train_track'}
@@ -50,17 +50,17 @@ if __name__ == "__main__":
     model.double()
 
     optimizer = optim.Adam(model.parameters(), lr = 0.01, weight_decay = 0.0001)
-    nEpochs = 10
+    nEpochs = 1
 
     for epoch in range(nEpochs):
         torch.cuda.empty_cache()
 
         for batch, data in enumerate(dataloader):
-            # print(batch, len(data))
-            # print((data["map"]).shape)
-            # map = np.array(data["map"][0,:])
-            # cv2.imshow("map",map)
-            # cv2.waitKey(0)
+            print(batch, len(data))
+            print((data["map"]).shape)
+            map = np.array(data["map"][0,:])
+            cv2.imshow("map",map)
+            cv2.waitKey(0)
             # break
             coords, gt, = data["coords"], data["ground_truth"]
 
@@ -68,18 +68,18 @@ if __name__ == "__main__":
             print(coords.shape)
             print("=============================")
             print(gt.shape)
-            optimizer.zero_grad()
+            # optimizer.zero_grad()
             
-            coords = downsample(coords)
-            coords = coords[:,:5, :,:]
-            coords_flatten = coords.permute(0,2,1,3)
-            print(coords_flatten.shape)
-            print("-----------------------------------")
-            coords_flatten = coords_flatten.flatten(1,3)
-            print(coords_flatten.shape)
+            # coords = downsample(coords)
+            # coords = coords[:,:5, :,:]
+            # coords_flatten = coords.permute(0,2,1,3)
+            # print(coords_flatten.shape)
+            # print("-----------------------------------")
+            # coords_flatten = coords_flatten.flatten(1,3)
+            # print(coords_flatten.shape)
             
-            #num-batches * (num_agents * history)
-            out = model(coords_flatten)
+            # #num-batches * (num_agents * history)
+            # out = model(coords_flatten)
 
             #TODO: understand what the ground truth is
 
