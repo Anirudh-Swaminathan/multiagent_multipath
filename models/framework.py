@@ -89,6 +89,7 @@ class CNNSceneContext(nn.Module):
     def forward(self, x):
         # COMPLETE the forward prop
         # x: torch.Size([16, 480, 640, 3])
+        x = x.permute(0,3,1,2)
         f = self.features(x)
         f = self.avgpool(f)
         f = torch.flatten(f, 1)
