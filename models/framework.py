@@ -227,13 +227,10 @@ class MultiAgentNetwork(NNClassifier):
         for agent in range(n_vehicles):
             fcn_out[:,agent,:] = self.past(past_traj[:,agent,:cfg.PAST_TRAJECTORY_LENGTH*2]) #torch.Size([16, 32])
         print("==================================")
-
-        gt = torch.zeros(n_batch, n_modes)
+        gt_future = gt_future.long()
         gt_index = self.n_intents**torch.arange(n_vehicles)
         gt_index = gt_index.repeat(n_batch, 1)
-
-        gt_index = torch.sum(gt_index*gt_future, dim=1, keepdim=True) 
-        gt.scatter(1, gt_index, 1)
+        gt_index = torch.sum(gt_index*gt_future, dim=1, keepdim=True)
 
         for mode in range(n_modes):
             intentions = torch.zeros(n_batch, n_vehicles, self.n_intents) 
@@ -255,7 +252,7 @@ class MultiAgentNetwork(NNClassifier):
             # combined_output: (nbatch, scene_out+intent_out)
             scores[:, mode] = self.score(combined_output)
         #scores = F.softmax(scores)
-        return scores, gt
+        return scores, gt_index.squeeze()
 
 
 class ToyStatsManager(nt.StatsManager):

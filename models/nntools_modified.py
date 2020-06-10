@@ -266,7 +266,7 @@ class Experiment(object):
                 loss.backward()
                 self.optimizer.step()
                 with torch.no_grad():
-                    self.stats_manager.accumulate(loss.item(), x, y, d)
+                    self.stats_manager.accumulate(loss.item(), 0, y, d) # TODO: Change 0 to x
             if not self.perform_validation_during_training:
                 self.history.append(self.stats_manager.summarize())
             else:
