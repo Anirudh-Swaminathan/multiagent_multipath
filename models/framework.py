@@ -2,18 +2,14 @@
 
 # python2 and python3 compatibility between loaded modules
 from __future__ import print_function
-
 import sys
 sys.path.append("../")
 
 import os
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
-from json import encoder
-import json
-from operator import add
-import re
 from PIL import Image
+from json import encoder
 import pylab
 import skimage.io as io
 from matplotlib import pyplot as plt
@@ -98,6 +94,51 @@ class CNNSceneContext(nn.Module):
         return f
 
 
+class ResnetSceneContext(nn.Module):
+    def __init__(self, scene_out, fine_tuning=True):
+        super(ResnetSceneContext, self).__init__()
+        resnet = tv.models.resnet18(pretrained=True)
+        for param in resnet.parameters():
+            param.requires_grad = fine_tuning
+        
+        # network definitions
+        self.conv1 = resnet.conv1
+        self.bn1 = resnet.bn1
+        self.relu = resnet.relu
+        self.maxpool = resnet.maxpool
+        
+        # layers
+        self.layer1 = resnet.layer1
+        self.layer2 = resnet.layer2
+        self.layer3 = resnet.layer3
+        self.layer4 = resnet.layer4
+
+        # avgpool
+        self.avgpool = resnet.avgpool
+        # fc
+        self.fc = resnet.fc
+
+        # change output layer
+        num_ftrs = resnet.fc.in_features
+        self.fc = nn.Linear(num_ftrs, scene_out)
+
+    def forward(self, x):
+        # forward prop through the network
+        x = x.permute(0, 3, 1, 2)
+        x = x.float()
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.maxpool(x)
+        f = self.layer1(x)
+        f = self.layer2(f)
+        f = self.layer3(f)
+        f = self.layer4(f)
+        a = self.avgpool(f)
+        a = torch.flatten(a, 1)
+        y = self.fc(a)
+        return y
+
 # class RNNAnchorProcess(nn.Module):
 #     def __init__(self):
 #         pass
@@ -133,7 +174,7 @@ class FCNPastProcess(nn.Module):
         x dim: batch_size * (PAST_TRAJECTORY_LENGTH * 2)
         '''
         # assert (x.size() == torch.Size([2,PAST_TRAJECTORY_LENGTH])), print("Incorrect tensor shape passed to FCN")
-        print("In model: ", x.shape)
+#         print("In model: ", x.shape)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
@@ -197,6 +238,7 @@ class MultiAgentNetwork(NNClassifier):
         """
         super(MultiAgentNetwork, self).__init__()
         self.scene = CNNSceneContext(scene_out, fine_tuning)
+#         self.scene = ResnetSceneContext(scene_out, fine_tuning)
         self.past = FCNPastProcess(fcn_out); self.past.double()
         self.intent = IntentionEmbedding(intent_in, intent_out)
         self.score = ScoringFunction(scene_out+intent_out)
@@ -226,10 +268,12 @@ class MultiAgentNetwork(NNClassifier):
         fcn_out = torch.rand([n_batch, n_vehicles, cfg.FCN_OUT])
         for agent in range(n_vehicles):
             fcn_out[:,agent,:] = self.past(past_traj[:,agent,:cfg.PAST_TRAJECTORY_LENGTH*2]) #torch.Size([16, 32])
+        fcn_out = fcn_out.to(self.device)
         # print("==================================")
         gt_future = gt_future.long()
         gt_index = self.n_intents**torch.arange(n_vehicles)
         gt_index = gt_index.repeat(n_batch, 1)
+        gt_index = gt_index.to(self.device)
         gt_index = torch.sum(gt_index*gt_future, dim=1, keepdim=True)
 
         for mode in range(n_modes):
@@ -241,6 +285,7 @@ class MultiAgentNetwork(NNClassifier):
 
             # print("==================================")
 
+            intentions = intentions.to(self.device)
             traj_output = self.intent(fcn_out, intentions) 
             # print(traj_output.shape)
 
@@ -252,6 +297,7 @@ class MultiAgentNetwork(NNClassifier):
             # combined_output: (nbatch, scene_out+intent_out)
             scores[:, mode] = self.score(combined_output)
         #scores = F.softmax(scores)
+        scores = scores.to(self.device)
         return scores, gt_index.squeeze()
 
 
@@ -292,16 +338,18 @@ class TrainNetwork(object):
         # self.train_loader = td.Dataloader(self.training_dataset, **params)
         self.val_dataset = toyScenesdata(set_name="val")
         # self.val_loader = td.Dataloader(self.val_dataset, batch_size=cfg.BATCH_SIZE, pin_memory=True)
+        self.test_dataset = toyScenesdata(set_name="test")
         self._init_train_stuff()
 
     def _init_paths(self):
         # data loading
         # change output directory #DONE
+        self.exp_name = "vgg_gpu_old_downsample/"
         self.dataset_root_dir = cfg.DATA_PATH
 
         # output directory for training checkpoints
         # This changes for every experiment
-        self.op_dir = cfg.OUTPUT_PATH  # + <experiment nunmber>
+        self.op_dir = cfg.OUTPUT_PATH + self.exp_name # + <experiment nunmber>
 
     def _init_train_stuff(self):
         self.lr = 1e-3
@@ -318,7 +366,7 @@ class TrainNetwork(object):
         self.net = net.to(device)
         self.adam = torch.optim.Adam(net.parameters(), lr=self.lr)
         self.stats_manager = ToyStatsManager()
-        self.exp = nt.Experiment(self.net, self.training_dataset, self.val_dataset, self.adam,
+        self.exp = nt.Experiment(self.net, self.training_dataset, self.val_dataset, self.test_dataset, self.adam,
                                  self.stats_manager, output_dir=self.op_dir, perform_validation_during_training=True)
 
     def myimshow(self, img, ax=plt):
@@ -368,18 +416,23 @@ class TrainNetwork(object):
 
     def run_exp(self):
         # RUN on the server, without plotting
-        self.exp.run(num_epochs=20)
+        self.exp.run(num_epochs=cfg.NUM_EPOCHS)
 
     def save_evaluation(self):
         exp_val = self.exp.evaluate()
         with open(self.op_dir+'val_result.txt', 'a') as t_file:
             print(exp_val, t_file)
 
+    def save_testing(self):
+        exp_test = self.exp.test()
+        with open(self.op_dir+'test_result.txt', 'a') as t_file:
+            print(exp_test, t_file)
 
 def main():
     tn = TrainNetwork()
     tn.run_exp()
     tn.save_evaluation()
+    tn.save_testing()
 
 
 if __name__ == '__main__':

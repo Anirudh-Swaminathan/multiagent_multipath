@@ -45,7 +45,10 @@ if __name__ == "__main__":
         if os.path.exists(cur_path+"/scene.png"):
             print("Image exists. Don't need to copy")
         else:
-            shutil.copy(ORIGINAL_DATA_PATH+scene+"/scene.png",cur_path+"/scene.png")
+            img = cv2.imread(ORIGINAL_DATA_PATH+scene+"/scene.png", cv2.IMREAD_UNCHANGED)
+            resized = cv2.resize(img, (100,100), interpolation = cv2.INTER_AREA)
+            cv2.imwrite(cur_path+"/scene.png", resized)
+#             shutil.copy(ORIGINAL_DATA_PATH+scene+"/scene.png",cur_path+"/scene.png")
 
         print("Copying history from original to new after downsampling")
 

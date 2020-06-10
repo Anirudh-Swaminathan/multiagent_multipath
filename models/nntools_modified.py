@@ -10,6 +10,9 @@ import torch
 from torch import nn
 import torch.utils.data as td
 from abc import ABC, abstractmethod
+import sys
+sys.path.append("../")
+from utils import config as cfg
 
 
 class NeuralNetwork(nn.Module, ABC):
@@ -139,14 +142,15 @@ class Experiment(object):
             set and the validation set. (default: False)
     """
 
-    def __init__(self, net, train_set, val_set, optimizer, stats_manager,
+    def __init__(self, net, train_set, val_set, test_set, optimizer, stats_manager,
                  output_dir=None, batch_size=16, perform_validation_during_training=False):
 
         # Define data loaders
-        train_loader = td.DataLoader(train_set, batch_size=batch_size, shuffle=True,
-                                     drop_last=True, pin_memory=True)
-        val_loader = td.DataLoader(val_set, batch_size=batch_size, shuffle=False,
-                                   drop_last=True, pin_memory=True)
+        train_loader = td.DataLoader(train_set, batch_size=cfg.BATCH_SIZE, shuffle=cfg.SHUFFLE,
+                                     drop_last=cfg.DROP_LAST, pin_memory=True)
+        val_loader = td.DataLoader(val_set, batch_size=cfg.BATCH_SIZE, shuffle=cfg.SHUFFLE,
+                                   drop_last=cfg.DROP_LAST, pin_memory=True)
+        test_loader = td.DataLoader(test_set, batch_size=cfg.BATCH_SIZE, shuffle=cfg.SHUFFLE, drop_last=cfg.DROP_LAST, pin_memory=True)
 
         # Initialize history
         history = []
@@ -163,15 +167,15 @@ class Experiment(object):
         self.__dict__.update(locs)
 
         # Load checkpoint and check compatibility
-        # if os.path.isfile(config_path):
-        #     with open(config_path, 'r') as f:
-        #         if f.read()[:-1] != repr(self):
-        #             raise ValueError(
-        #                 "Cannot create this experiment: "
-        #                 "I found a checkpoint conflicting with the current setting.")
-        #     self.load()
-        # else:
-        #     self.save()
+        if os.path.isfile(config_path):
+            with open(config_path, 'r') as f:
+                if f.read()[:-1] != repr(self):
+                    raise ValueError(
+                        "Cannot create this experiment: "
+                        "I found a checkpoint conflicting with the current setting.")
+            self.load()
+        else:
+            self.save()
 
     @property
     def epoch(self):
@@ -288,10 +292,27 @@ class Experiment(object):
         self.net.eval()
         with torch.no_grad():
             for data in self.val_loader:
-                x, p, f = data["map"], data["coords"], data["gt"]
+                x, p, f = data["map"], data["coords"], data["ground_truth"]
                 x, p, f = x.to(self.net.device), p.to(self.net.device), f.to(self.net.device)
                 y, d = self.net.forward(x, p, f)
                 loss = self.net.criterion(y, d)
                 self.stats_manager.accumulate(loss.item(), x, y, d)
         self.net.train()
         return self.stats_manager.summarize()
+
+    def test(self):
+        """ Evaluates the experiment on the testing set that is not seen during training.
+        This methods is used explicitly during the testing once the experiment concludes
+        """
+        self.stats_manager.init()
+        self.net.eval()
+        with torch.no_grad():
+            for data in self.test_loader:
+                x, p, f = data["map"], data["coords"], data["ground_truth"]
+                x, p, f = x.to(self.net.device), p.to(self.net.device), f.to(self.net.device)
+                y, d = self.net.forward(x, p, f)
+                loss = self.net.criterion(y, d)
+                self.stats_manager.accumulate(loss.item(), x, y, d)
+        self.net.train()
+        return self.stats_manager.summarize()
+

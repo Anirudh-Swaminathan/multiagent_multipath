@@ -88,8 +88,8 @@ Net(MultiAgentNetwork(
     )
   )
 ))
-TrainSet(<utils.datareader_toy.toyScenesdata object at 0x7f8e60363dd8>)
-ValSet(<utils.datareader_toy.toyScenesdata object at 0x7f8e6609bba8>)
+TrainSet(<utils.datareader_toy.toyScenesdata object at 0x7ff01d443828>)
+ValSet(<utils.datareader_toy.toyScenesdata object at 0x7ff01abe64e0>)
 Optimizer(Adam (
 Parameter Group 0
     amsgrad: False
