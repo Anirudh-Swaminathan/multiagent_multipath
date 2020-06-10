@@ -185,8 +185,8 @@ class Experiment(object):
     def setting(self):
         """Returns the setting of the experiment."""
         return {'Net': self.net,
-                'TrainSet': self.train_set,
-                'ValSet': self.val_set,
+#                 'TrainSet': self.train_set,
+#                 'ValSet': self.val_set,
                 'Optimizer': self.optimizer,
                 'StatsManager': self.stats_manager,
                 'BatchSize': self.batch_size,

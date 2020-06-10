@@ -421,16 +421,16 @@ class TrainNetwork(object):
     def save_evaluation(self):
         exp_val = self.exp.evaluate()
         with open(self.op_dir+'val_result.txt', 'a') as t_file:
-            print(exp_val, t_file)
+            t_file.write(exp_val, t_file)
 
     def save_testing(self):
         exp_test = self.exp.test()
         with open(self.op_dir+'test_result.txt', 'a') as t_file:
-            print(exp_test, t_file)
+            t_file.write(exp_test, t_file)
 
 def main():
     tn = TrainNetwork()
-    tn.run_exp()
+    tn.run_exp() #tn.run_plot_exp()
     tn.save_evaluation()
     tn.save_testing()
 
