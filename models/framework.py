@@ -215,18 +215,18 @@ class MultiAgentNetwork(NNClassifier):
         # print("gt_future shape: ", gt_future.shape)
 
         scene_output = self.scene(img) #TODO: Fix dimension mismatch
-        print("==================================")
-        print("Scene Output shape: ", scene_output.shape)
+        # print("==================================")
+        # print("Scene Output shape: ", scene_output.shape)
 
         n_batch = past_traj.shape[0]
         n_vehicles = past_traj.shape[1]
         n_modes = self.n_intents**n_vehicles
         scores = torch.zeros(n_batch, n_modes)
 
-        fcn_out = torch.rand([16, cfg.NUM_AGENTS, cfg.FCN_OUT])
+        fcn_out = torch.rand([n_batch, n_vehicles, cfg.FCN_OUT])
         for agent in range(n_vehicles):
             fcn_out[:,agent,:] = self.past(past_traj[:,agent,:cfg.PAST_TRAJECTORY_LENGTH*2]) #torch.Size([16, 32])
-        print("==================================")
+        # print("==================================")
         gt_future = gt_future.long()
         gt_index = self.n_intents**torch.arange(n_vehicles)
         gt_index = gt_index.repeat(n_batch, 1)
@@ -239,10 +239,10 @@ class MultiAgentNetwork(NNClassifier):
                 intentions[..., agent, intention_index] = 1
             # past_output: (n_batch, n_vehicles, intent_in)
 
-            print("==================================")
+            # print("==================================")
 
             traj_output = self.intent(fcn_out, intentions) 
-            print(traj_output.shape)
+            # print(traj_output.shape)
 
             # traj_output: (n_batch, n_vehicles, intent_out)
             # or mean, or max
