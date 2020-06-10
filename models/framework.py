@@ -229,12 +229,13 @@ class MultiAgentNetwork(NNClassifier):
 
         gt = torch.zeros(n_batch, n_modes)
         gt_index = self.n_intents**torch.arange(n_vehicles)
-        gt_index = gt.repeat(n_batch, 1)
-        gt_index = torch.sum(gt_index*gt_future, dim=1, keepdim=True) #TODO: Fix the dimension mismatch
+        gt_index = gt_index.repeat(n_batch, 1)
+
+        gt_index = torch.sum(gt_index*gt_future, dim=1, keepdim=True) 
         gt.scatter(1, gt_index, 1)
 
         for mode in range(n_modes):
-            intentions = torch.zeros(n_batch, n_vehicles, self.n_intents) #TODO: what is past_output?
+            intentions = torch.zeros(n_batch, n_vehicles, self.n_intents) 
             for agent in range(n_vehicles):
                 intention_index = int(mode/self.n_intents**(agent)) % self.n_intents
                 intentions[..., agent, intention_index] = 1
@@ -242,12 +243,12 @@ class MultiAgentNetwork(NNClassifier):
 
             print("==================================")
 
-            traj_output = self.intent(fcn_out, intentions) #TODO: Fix dimension mismatch
+            traj_output = self.intent(fcn_out, intentions) 
             print(traj_output.shape)
 
             # traj_output: (n_batch, n_vehicles, intent_out)
             # or mean, or max
-            traj_output = F.sum(traj_output, dim=1).squeeze()
+            traj_output = torch.sum(traj_output, dim=1).squeeze()
             # traj_output: (n_batch, intent_out)
             combined_output = torch.cat((scene_output, traj_output), dim=1)
             # combined_output: (nbatch, scene_out+intent_out)
