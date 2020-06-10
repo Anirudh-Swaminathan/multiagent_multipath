@@ -137,7 +137,7 @@ class FCNPastProcess(nn.Module):
         '''
         fdim: Num channels in the output (number of intents)
         '''
-
+        #TODO: Remove NUm_agents from FCN
         super(FCNPastProcess, self).__init__()
         self.fc1 = nn.Linear(cfg.PAST_TRAJECTORY_LENGTH * cfg.NUM_AGENTS * 2, 64)
         self.fc2 = nn.Linear(64, 64)
@@ -311,13 +311,13 @@ class TrainNetwork(object):
 
     def _init_train_stuff(self):
         self.lr = 1e-3
-        # TODO Change these values
+        # TODO Change these values #DONE
         self.n_intents = 4
         self.scene_out = 32 #fdim
-        # self.intent_in = <>
-        # self.intent_out = <>
-        # self.score_out = <>
-        net = MultiAgentNetwork(self.n_intents, self.scene_out, self.intent_in, self.intent_out, self.score_out)
+        self.intent_in = 32
+        self.intent_out = 32
+        self.score_in = 64
+        net = MultiAgentNetwork(self.n_intents, self.scene_out, self.intent_in, self.intent_out, self.score_in)
         self.net = net.to(device)
         self.adam = torch.optim.Adam(net.parameters(), lr=self.lr)
         self.stats_manager = ToyStatsManager()
