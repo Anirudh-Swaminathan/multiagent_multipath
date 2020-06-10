@@ -158,7 +158,7 @@ class IntentionEmbedding(nn.Module):
         # x: batch x n_vehicles x intent_in, past trajectory features
         # intention: batch x n_vehicles x 4, one-hot embedding of intentions
         intention = self.emb(intention)
-        y = torch.cat((x, intention), dim=1)
+        y = torch.cat((x, intention), dim=2)
         y = self.encode(y)
         return y
 
