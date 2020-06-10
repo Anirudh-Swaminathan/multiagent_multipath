@@ -124,6 +124,8 @@ class ResnetSceneContext(nn.Module):
 
     def forward(self, x):
         # forward prop through the network
+        x = x.permute(0, 3, 1, 2)
+        x = x.float()
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
