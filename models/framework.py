@@ -386,6 +386,7 @@ def main():
     tn = TrainNetwork()
     tn.run_exp()
     tn.save_evaluation()
+    tn.save_testing()
 
 
 if __name__ == '__main__':
