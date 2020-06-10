@@ -292,6 +292,7 @@ class TrainNetwork(object):
         # self.train_loader = td.Dataloader(self.training_dataset, **params)
         self.val_dataset = toyScenesdata(set_name="val")
         # self.val_loader = td.Dataloader(self.val_dataset, batch_size=cfg.BATCH_SIZE, pin_memory=True)
+        self.test_dataset = toyScenesdata(set_name="test")
         self._init_train_stuff()
 
     def _init_paths(self):
@@ -318,7 +319,7 @@ class TrainNetwork(object):
         self.net = net.to(device)
         self.adam = torch.optim.Adam(net.parameters(), lr=self.lr)
         self.stats_manager = ToyStatsManager()
-        self.exp = nt.Experiment(self.net, self.training_dataset, self.val_dataset, self.adam,
+        self.exp = nt.Experiment(self.net, self.training_dataset, self.val_dataset, self.test_dataset, self.adam,
                                  self.stats_manager, output_dir=self.op_dir, perform_validation_during_training=True)
 
     def myimshow(self, img, ax=plt):
@@ -374,6 +375,11 @@ class TrainNetwork(object):
         exp_val = self.exp.evaluate()
         with open(self.op_dir+'val_result.txt', 'a') as t_file:
             print(exp_val, t_file)
+
+    def save_testing(self):
+        exp_test = self.exp.test()
+        with open(self.op_dir+'test_result.txt', 'a') as t_file:
+            print(exp_test, t_file)
 
 
 def main():
