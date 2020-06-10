@@ -163,15 +163,15 @@ class Experiment(object):
         self.__dict__.update(locs)
 
         # Load checkpoint and check compatibility
-        if os.path.isfile(config_path):
-            with open(config_path, 'r') as f:
-                if f.read()[:-1] != repr(self):
-                    raise ValueError(
-                        "Cannot create this experiment: "
-                        "I found a checkpoint conflicting with the current setting.")
-            self.load()
-        else:
-            self.save()
+        # if os.path.isfile(config_path):
+        #     with open(config_path, 'r') as f:
+        #         if f.read()[:-1] != repr(self):
+        #             raise ValueError(
+        #                 "Cannot create this experiment: "
+        #                 "I found a checkpoint conflicting with the current setting.")
+        #     self.load()
+        # else:
+        #     self.save()
 
     @property
     def epoch(self):
