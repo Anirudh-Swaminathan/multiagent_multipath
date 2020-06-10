@@ -268,6 +268,7 @@ class MultiAgentNetwork(NNClassifier):
         fcn_out = torch.rand([n_batch, n_vehicles, cfg.FCN_OUT])
         for agent in range(n_vehicles):
             fcn_out[:,agent,:] = self.past(past_traj[:,agent,:cfg.PAST_TRAJECTORY_LENGTH*2]) #torch.Size([16, 32])
+        fcn_out = fcn_out.to(self.device)
         # print("==================================")
         gt_future = gt_future.long()
         gt_index = self.n_intents**torch.arange(n_vehicles)
@@ -343,11 +344,11 @@ class TrainNetwork(object):
         # data loading
         # change output directory #DONE
         self.exp_name = "resnet_gpu_new_downsample/"
-        self.dataset_root_dir = cfg.DATA_PATH + self.exp_name
+        self.dataset_root_dir = cfg.DATA_PATH
 
         # output directory for training checkpoints
         # This changes for every experiment
-        self.op_dir = cfg.OUTPUT_PATH  # + <experiment nunmber>
+        self.op_dir = cfg.OUTPUT_PATH + self.exp_name # + <experiment nunmber>
 
     def _init_train_stuff(self):
         self.lr = 1e-3
@@ -414,7 +415,7 @@ class TrainNetwork(object):
 
     def run_exp(self):
         # RUN on the server, without plotting
-        self.exp.run(num_epochs=20)
+        self.exp.run(num_epochs=cfg.NUM_EPOCHS)
 
     def save_evaluation(self):
         exp_val = self.exp.evaluate()
