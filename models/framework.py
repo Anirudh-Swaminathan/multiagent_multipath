@@ -94,6 +94,49 @@ class CNNSceneContext(nn.Module):
         return f
 
 
+class ResnetSceneContext(nn.Module):
+    def __init__(self, scene_out, fine_tuning=True):
+        super(ResnetSceneContext, self).__init__()
+        resnet = tv.models.resnet18(pretrained=True)
+        for param in resnet.parameters():
+            param.requires_grad = fine_tuning
+        
+        # network definitions
+        self.conv1 = resnet.conv1
+        self.bn1 = resnet.bn1
+        self.relu = resnet.relu
+        self.maxpool = resnet.maxpool
+        
+        # layers
+        self.layer1 = resnet.layer1
+        self.layer2 = resnet.layer2
+        self.layer3 = resnet.layer3
+        self.layer4 = resnet.layer4
+
+        # avgpool
+        self.avgpool = resnet.avgpool
+        # fc
+        self.fc = resnet.fc
+
+        # change output layer
+        num_ftrs = resnet.fc.in_features
+        self.fc = nn.Linear(num_ftrs, scene_out)
+
+    def forward(self, x):
+        # forward prop through the network
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.maxpool(x)
+        f = self.layer1(x)
+        f = self.layer2(f)
+        f = self.layer3(f)
+        f = self.layer4(f)
+        a = self.avgpool(f)
+        a = torch.flatten(a, 1)
+        y = self.fc(a)
+        return y
+
 # class RNNAnchorProcess(nn.Module):
 #     def __init__(self):
 #         pass
@@ -192,7 +235,8 @@ class MultiAgentNetwork(NNClassifier):
         score_in - dimension of the input of the scoring module
         """
         super(MultiAgentNetwork, self).__init__()
-        self.scene = CNNSceneContext(scene_out, fine_tuning)
+        # self.scene = CNNSceneContext(scene_out, fine_tuning)
+        self.scene = ResnetSceneContext(scene_out, fine_tuning)
         self.past = FCNPastProcess(fcn_out); self.past.double()
         self.intent = IntentionEmbedding(intent_in, intent_out)
         self.score = ScoringFunction(scene_out+intent_out)
