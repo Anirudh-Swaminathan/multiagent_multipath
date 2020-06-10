@@ -48,7 +48,7 @@ def downsample(coords):
     coords = torch.from_numpy(coords)
     return coords
 
-@profile
+
 def main():
 
     model = FCNPastProcess(32)
