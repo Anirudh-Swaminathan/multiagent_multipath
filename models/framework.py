@@ -284,6 +284,7 @@ class MultiAgentNetwork(NNClassifier):
 
             # print("==================================")
 
+            intentions = intentions.to(self.device)
             traj_output = self.intent(fcn_out, intentions) 
             # print(traj_output.shape)
 
