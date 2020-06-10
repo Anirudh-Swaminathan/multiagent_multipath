@@ -1,4 +1,5 @@
 import sys
+#sys.stdout = LogFile('memory_profile_log', reportIncrementFlag=False)
 sys.path.append("../")
 
 import os
@@ -16,6 +17,8 @@ from scipy.signal import resample
 
 from models.framework import FCNPastProcess
 import utils.config as cfg
+from memory_profiler import profile
+
 # from nuscenes.map_expansion.map_api import NuScenesMap
 
 # CUDA for PyTorch
@@ -33,6 +36,7 @@ params = {'batch_size': cfg.BATCH_SIZE,
 dataset = toyScenesdata()
 dataloader = DataLoader(dataset, **params)
 
+
 def downsample(coords):
     '''
     input shape: [batch_size, 6000, num_agents, coordinate_dimention]
@@ -44,8 +48,9 @@ def downsample(coords):
     coords = torch.from_numpy(coords)
     return coords
 
-if __name__ == "__main__":
-    
+@profile
+def main():
+
     model = FCNPastProcess(32)
     model.double()
 
@@ -59,8 +64,8 @@ if __name__ == "__main__":
             print(batch, len(data))
             print((data["map"]).shape)
             map = np.array(data["map"][0,:])
-            cv2.imshow("map",map)
-            cv2.waitKey(0)
+            #cv2.imshow("map",map)
+            #cv2.waitKey(0)
             # break
             coords, gt, = data["coords"], data["ground_truth"]
 
@@ -91,6 +96,11 @@ if __name__ == "__main__":
             # optimizer.zero_grad()
             # optimizer.step()
             break
+
+
+if __name__ == "__main__":
+    main()
+
 
             
 

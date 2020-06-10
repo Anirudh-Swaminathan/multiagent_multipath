@@ -2,18 +2,14 @@
 
 # python2 and python3 compatibility between loaded modules
 from __future__ import print_function
-
 import sys
 sys.path.append("../")
 
 import os
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
-from json import encoder
-import json
-from operator import add
-import re
 from PIL import Image
+from json import encoder
 import pylab
 import skimage.io as io
 from matplotlib import pyplot as plt
@@ -380,7 +376,6 @@ class TrainNetwork(object):
         exp_test = self.exp.test()
         with open(self.op_dir+'test_result.txt', 'a') as t_file:
             print(exp_test, t_file)
-
 
 def main():
     tn = TrainNetwork()
