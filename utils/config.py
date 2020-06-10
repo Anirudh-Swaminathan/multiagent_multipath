@@ -1,16 +1,16 @@
 #path parameters
 DATA_PATH = "data/toydataset/"
-OUTPUT_PATH = "output/toydataset_resampled/"
+OUTPUT_PATH = "../outputs/"
 
 #DATASET parameters
 SHUFFLE = True
 DROP_LAST = True
 NUM_WORKERS = 1
+BATCH_SIZE = 16
 
 #Model parameters
 PAST_TRAJECTORY_LENGTH = 5
 NUM_AGENTS = 2
-BATCH_SIZE = 16
 NUM_INTENTS = 4
 
 FCN_IN = 0

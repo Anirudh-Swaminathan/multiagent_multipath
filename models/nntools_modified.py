@@ -10,6 +10,9 @@ import torch
 from torch import nn
 import torch.utils.data as td
 from abc import ABC, abstractmethod
+import sys
+sys.path.append("../")
+from utils import config as cfg
 
 
 class NeuralNetwork(nn.Module, ABC):
@@ -143,11 +146,11 @@ class Experiment(object):
                  output_dir=None, batch_size=16, perform_validation_during_training=False):
 
         # Define data loaders
-        train_loader = td.DataLoader(train_set, batch_size=batch_size, shuffle=True,
-                                     drop_last=True, pin_memory=True)
-        val_loader = td.DataLoader(val_set, batch_size=batch_size, shuffle=True,
-                                   drop_last=True, pin_memory=True)
-        test_loader = td.DataLoader(test_set, batch_size=batch_size, shuffle=True, drop_last=True, pin_memory=True)
+        train_loader = td.DataLoader(train_set, batch_size=cfg.BATCH_SIZE, shuffle=cfg.SHUFFLE,
+                                     drop_last=cfg.DROP_LAST, pin_memory=True)
+        val_loader = td.DataLoader(val_set, batch_size=cfg.BATCH_SIZE, shuffle=cfg.SHUFFLE,
+                                   drop_last=cfg.DROP_LAST, pin_memory=True)
+        test_loader = td.DataLoader(test_set, batch_size=cfg.BATCH_SIZE, shuffle=cfg.SHUFFLE, drop_last=cfg.DROP_LAST, pin_memory=True)
 
         # Initialize history
         history = []

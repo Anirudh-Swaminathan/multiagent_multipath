@@ -272,6 +272,7 @@ class MultiAgentNetwork(NNClassifier):
         gt_future = gt_future.long()
         gt_index = self.n_intents**torch.arange(n_vehicles)
         gt_index = gt_index.repeat(n_batch, 1)
+        gt_index = gt_index.to(self.device)
         gt_index = torch.sum(gt_index*gt_future, dim=1, keepdim=True)
 
         for mode in range(n_modes):
@@ -340,7 +341,8 @@ class TrainNetwork(object):
     def _init_paths(self):
         # data loading
         # change output directory #DONE
-        self.dataset_root_dir = cfg.DATA_PATH
+        self.exp_name = "resnet_gpu_new_downsample/"
+        self.dataset_root_dir = cfg.DATA_PATH + self.exp_name
 
         # output directory for training checkpoints
         # This changes for every experiment
