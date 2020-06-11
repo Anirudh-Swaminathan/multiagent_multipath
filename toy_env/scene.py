@@ -24,12 +24,12 @@ class IntersectionScene:
         self.image_bounds = [(-250, -250), (250, 250)]
 
         # maximum distance away from intersection to generate the vehicle
-        self.closeness = 75
+        self.closeness = 50
         self.vw = 10
         self.vh = 20
         # distance from intersection minimum
-        self.iw = 60
-        self.ih = 60
+        self.iw = 200
+        self.ih = 200
 
         self.starting_points = list()
         # bottom lane => x in (intersection_bounds+vehicle_width/2, intersection_bounds-vehicle_width/2); y in (-(40+vehicle_length/2) to -(40 + closeness))
@@ -39,7 +39,7 @@ class IntersectionScene:
         # velocity towards top
         sbot_vel = np.array([0, 1])
         # random intent
-        sbot_int = np.random.choice(4)
+        sbot_int = np.random.choice(4, p=[0.2,0.3,0.3,0.2])
         # compute goal positions and directions
         if sbot_int == FW or sbot_int == SP:
             sbot_gol = np.array([sbot_posx, sbot_posy+self.closeness])
@@ -66,7 +66,7 @@ class IntersectionScene:
         # velocity towards bottom
         stop_vel = np.array([0, -1])
         # random choice of turn
-        stop_int = np.random.choice(4)
+        stop_int = np.random.choice(4, p=[0.2,0.3,0.3,0.2])
         # compute goal position and direction
         if stop_int == FW or stop_int == SP:
             stop_gvel = np.copy(stop_vel)
@@ -91,7 +91,7 @@ class IntersectionScene:
         # velocity direction
         sr_vel = np.array([-1, 0])
         # intention
-        sr_int = np.random.choice(4)
+        sr_int = np.random.choice(4, p=[0.2,0.3,0.3,0.2])
         # compute the goal positions and velocities
         if sr_int == FW or sr_int == SP:
             sr_gvel = np.copy(sr_vel)
@@ -116,7 +116,7 @@ class IntersectionScene:
         # velocity direction
         sl_vel = np.array([1, 0])
         # random intention
-        sl_int = np.random.choice(4)
+        sl_int = np.random.choice(4, p=[0.2,0.3,0.3,0.2])
         # compute the goal positions and velocities
         if sl_int == FW or sl_int == SP:
             sl_gvel = np.copy(sl_vel)
@@ -162,10 +162,10 @@ class IntersectionScene:
         ls = np.array(ls)
         vs = np.array(vs)
         scene_img = self.get_scene_image()
-        plt.clf()
-        plt.xlim(self.image_bounds[0][0], self.image_bounds[1][0])
-        plt.ylim(self.image_bounds[0][1], self.image_bounds[1][1])
-        plt.imshow(scene_img, cmap='gray', extent=(self.image_bounds[0][0], self.image_bounds[1][0], self.image_bounds[0][1], self.image_bounds[1][1]))
+        fig, ax = plt.subplots( nrows=1, ncols=1 )
+        ax.set_xlim(self.image_bounds[0][0], self.image_bounds[1][0])
+        ax.set_ylim(self.image_bounds[0][1], self.image_bounds[1][1])
+        ax.imshow(scene_img, cmap='gray', extent=(self.image_bounds[0][0], self.image_bounds[1][0], self.image_bounds[0][1], self.image_bounds[1][1]))
         n=ls.shape[1]
         for i in range(n):
             plt.scatter(ls[:, i, 0], ls[:, i, 1])
@@ -181,8 +181,8 @@ class IntersectionScene:
             lx = ls[-1, i, 0] + tlx*np.cos(angleRad) - tly*np.sin(angleRad)
             ly = ls[-1, i, 1] + tlx*np.sin(angleRad) + tly*np.cos(angleRad)
             rect = patches.Rectangle((lx, ly), width, height, angle, facecolor='red')
-            plt.gca().add_patch(rect)
+            ax.add_patch(rect)
 
-        return plt
+        return fig
 
 
