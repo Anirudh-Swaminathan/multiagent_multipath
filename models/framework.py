@@ -237,8 +237,8 @@ class MultiAgentNetwork(NNClassifier):
         score_in - dimension of the input of the scoring module
         """
         super(MultiAgentNetwork, self).__init__()
-        self.scene = CNNSceneContext(scene_out, fine_tuning)
-#         self.scene = ResnetSceneContext(scene_out, fine_tuning)
+#         self.scene = CNNSceneContext(scene_out, fine_tuning)
+        self.scene = ResnetSceneContext(scene_out, fine_tuning)
         self.past = FCNPastProcess(fcn_out); self.past.double()
         self.intent = IntentionEmbedding(intent_in, intent_out)
         self.score = ScoringFunction(scene_out+intent_out)
@@ -344,7 +344,7 @@ class TrainNetwork(object):
     def _init_paths(self):
         # data loading
         # change output directory #DONE
-        self.exp_name = "vgg_gpu_old_downsample/"
+        self.exp_name = "res_gpu_large_downsample/"
         self.dataset_root_dir = cfg.DATA_PATH
 
         # output directory for training checkpoints
@@ -421,12 +421,14 @@ class TrainNetwork(object):
     def save_evaluation(self):
         exp_val = self.exp.evaluate()
         with open(self.op_dir+'val_result.txt', 'a') as t_file:
-            t_file.write(exp_val, t_file)
+            print(exp_val)
+            t_file.write(str(exp_val))
 
     def save_testing(self):
         exp_test = self.exp.test()
         with open(self.op_dir+'test_result.txt', 'a') as t_file:
-            t_file.write(exp_test, t_file)
+            print(exp_test)
+            t_file.write(str(exp_test))
 
 def main():
     tn = TrainNetwork()
