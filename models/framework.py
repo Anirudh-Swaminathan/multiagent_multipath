@@ -165,7 +165,7 @@ class FCNPastProcess(nn.Module):
         fcn_out: Num channels in the output (number of intents)
         '''
         super(FCNPastProcess, self).__init__()
-        self.fc1 = nn.Linear(cfg.PAST_TRAJECTORY_LENGTH * 2, 64)
+        self.fc1 = nn.Linear(int(cfg.PAST_TRAJECTORY_LENGTH * 2), 64)
         self.fc2 = nn.Linear(64, 64)
         self.fc3 = nn.Linear(64, fcn_out)
 
@@ -237,8 +237,13 @@ class MultiAgentNetwork(NNClassifier):
         score_in - dimension of the input of the scoring module
         """
         super(MultiAgentNetwork, self).__init__()
-#         self.scene = CNNSceneContext(scene_out, fine_tuning)
-        self.scene = ResnetSceneContext(scene_out, fine_tuning)
+        if cfg.BACKBONE == "VGG":
+            self.scene = CNNSceneContext(scene_out, fine_tuning)
+        elif cfg.BACKBONE == "RESNET":
+            self.scene = ResnetSceneContext(scene_out, fine_tuning)
+        else:
+            print("Incorrect BACKBONE specified in config.py")
+            return(-1)
         self.past = FCNPastProcess(fcn_out); self.past.double()
         self.intent = IntentionEmbedding(intent_in, intent_out)
         self.score = ScoringFunction(scene_out+intent_out)
@@ -267,7 +272,7 @@ class MultiAgentNetwork(NNClassifier):
 
         fcn_out = torch.rand([n_batch, n_vehicles, cfg.FCN_OUT])
         for agent in range(n_vehicles):
-            fcn_out[:,agent,:] = self.past(past_traj[:,agent,:cfg.PAST_TRAJECTORY_LENGTH*2]) #torch.Size([16, 32])
+            fcn_out[:,agent,:] = self.past(past_traj[:,agent,:int(cfg.PAST_TRAJECTORY_LENGTH*2)]) #torch.Size([16, 32])
         fcn_out = fcn_out.to(self.device)
         # print("==================================")
         gt_future = gt_future.long()
@@ -335,16 +340,13 @@ class TrainNetwork(object):
         self._init_paths()
 
         self.training_dataset = toyScenesdata()
-        # self.train_loader = td.Dataloader(self.training_dataset, **params)
         self.val_dataset = toyScenesdata(set_name="val")
-        # self.val_loader = td.Dataloader(self.val_dataset, batch_size=cfg.BATCH_SIZE, pin_memory=True)
         self.test_dataset = toyScenesdata(set_name="test")
         self._init_train_stuff()
 
     def _init_paths(self):
         # data loading
-        # change output directory #DONE
-        self.exp_name = "res_gpu_original_downsample_pt_2_5/"
+        self.exp_name = cfg.EXP_NAME
         self.dataset_root_dir = cfg.DATA_PATH
 
         # output directory for training checkpoints
