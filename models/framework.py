@@ -344,7 +344,7 @@ class TrainNetwork(object):
     def _init_paths(self):
         # data loading
         # change output directory #DONE
-        self.exp_name = "res_gpu_large_downsample/"
+        self.exp_name = "res_gpu_original_downsample_pt_1/"
         self.dataset_root_dir = cfg.DATA_PATH
 
         # output directory for training checkpoints
