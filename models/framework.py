@@ -165,7 +165,7 @@ class FCNPastProcess(nn.Module):
         fcn_out: Num channels in the output (number of intents)
         '''
         super(FCNPastProcess, self).__init__()
-        self.fc1 = nn.Linear(cfg.PAST_TRAJECTORY_LENGTH * 2, 64)
+        self.fc1 = nn.Linear(int(cfg.PAST_TRAJECTORY_LENGTH * 2), 64)
         self.fc2 = nn.Linear(64, 64)
         self.fc3 = nn.Linear(64, fcn_out)
 
@@ -267,7 +267,7 @@ class MultiAgentNetwork(NNClassifier):
 
         fcn_out = torch.rand([n_batch, n_vehicles, cfg.FCN_OUT])
         for agent in range(n_vehicles):
-            fcn_out[:,agent,:] = self.past(past_traj[:,agent,:cfg.PAST_TRAJECTORY_LENGTH*2]) #torch.Size([16, 32])
+            fcn_out[:,agent,:] = self.past(past_traj[:,agent,:int(cfg.PAST_TRAJECTORY_LENGTH*2)]) #torch.Size([16, 32])
         fcn_out = fcn_out.to(self.device)
         # print("==================================")
         gt_future = gt_future.long()
@@ -344,7 +344,7 @@ class TrainNetwork(object):
     def _init_paths(self):
         # data loading
         # change output directory #DONE
-        self.exp_name = "res_gpu_original_downsample_pt_1/"
+        self.exp_name = "res_gpu_original_downsample_pt_1_5/"
         self.dataset_root_dir = cfg.DATA_PATH
 
         # output directory for training checkpoints
