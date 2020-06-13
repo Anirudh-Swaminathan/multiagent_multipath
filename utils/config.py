@@ -3,7 +3,7 @@ DATA_PATH = "../data/toydataset_resampled/"
 OUTPUT_PATH = "../outputs/"
 
 #Experiment details
-EXP_NAME = "res_gpu_original_downsample_epoch_50_pt_5/" #format: <res/vgg>_<cpu/gpu>_<original/largecollision>_<OPTIONAL: downsample>_epoch_<num_epochs>_pt_<PAST_TAJECTORY_LENGTH>/
+EXP_NAME = "res_gpu_single_downsample_pt_5/" #format: <res/vgg>_<cpu/gpu>_<original/largecollision>_<OPTIONAL: downsample>_epoch_<num_epochs>_pt_<PAST_TAJECTORY_LENGTH>/
 BACKBONE = "RESNET" #RESNET | VGG
 
 #DATASET parameters

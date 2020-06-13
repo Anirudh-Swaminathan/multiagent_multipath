@@ -165,7 +165,7 @@ class FCNPastProcess(nn.Module):
         fcn_out: Num channels in the output (number of intents)
         '''
         super(FCNPastProcess, self).__init__()
-        self.fc1 = nn.Linear(cfg.PAST_TRAJECTORY_LENGTH * 2, 64)
+        self.fc1 = nn.Linear(int(cfg.PAST_TRAJECTORY_LENGTH * 2), 64)
         self.fc2 = nn.Linear(64, 64)
         self.fc3 = nn.Linear(64, fcn_out)
 
@@ -237,8 +237,13 @@ class MultiAgentNetwork(NNClassifier):
         score_in - dimension of the input of the scoring module
         """
         super(MultiAgentNetwork, self).__init__()
-        self.scene = CNNSceneContext(scene_out, fine_tuning)
-#         self.scene = ResnetSceneContext(scene_out, fine_tuning)
+        if cfg.BACKBONE == "VGG":
+            self.scene = CNNSceneContext(scene_out, fine_tuning)
+        elif cfg.BACKBONE == "RESNET":
+            self.scene = ResnetSceneContext(scene_out, fine_tuning)
+        else:
+            print("Incorrect BACKBONE specified in config.py")
+            return(-1)
         self.past = FCNPastProcess(fcn_out); self.past.double()
         self.intent = IntentionEmbedding(intent_in, intent_out)
         self.score = ScoringFunction(scene_out+intent_out)
@@ -267,7 +272,7 @@ class MultiAgentNetwork(NNClassifier):
 
         fcn_out = torch.rand([n_batch, n_vehicles, cfg.FCN_OUT])
         for agent in range(n_vehicles):
-            fcn_out[:,agent,:] = self.past(past_traj[:,agent,:cfg.PAST_TRAJECTORY_LENGTH*2]) #torch.Size([16, 32])
+            fcn_out[:,agent,:] = self.past(past_traj[:,agent,:int(cfg.PAST_TRAJECTORY_LENGTH*2)]) #torch.Size([16, 32])
         fcn_out = fcn_out.to(self.device)
         # print("==================================")
         gt_future = gt_future.long()
@@ -275,7 +280,8 @@ class MultiAgentNetwork(NNClassifier):
         gt_index = gt_index.repeat(n_batch, 1)
         gt_index = gt_index.to(self.device)
         gt_index = torch.sum(gt_index*gt_future, dim=1, keepdim=True)
-
+        
+        scores = scores.to(self.device)
         for mode in range(n_modes):
             intentions = torch.zeros(n_batch, n_vehicles, self.n_intents) 
             for agent in range(n_vehicles):
@@ -297,7 +303,7 @@ class MultiAgentNetwork(NNClassifier):
                 # combined_output: (nbatch, scene_out+intent_out)
                 scores[:, mode] = scores[:, mode]+self.score(combined_output)
         #scores = F.softmax(scores)
-        scores = scores.to(self.device)
+        
         return scores, gt_index.squeeze()
 
 
@@ -343,8 +349,7 @@ class TrainNetwork(object):
 
     def _init_paths(self):
         # data loading
-        # change output directory #DONE
-        self.exp_name = "vgg_gpu_old_downsample/"
+        self.exp_name = cfg.EXP_NAME
         self.dataset_root_dir = cfg.DATA_PATH
 
         # output directory for training checkpoints
