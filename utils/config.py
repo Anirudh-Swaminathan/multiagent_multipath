@@ -1,5 +1,6 @@
 #path parameters
-DATA_PATH = "data/toydataset/"
+# DATA_PATH = "../data/dataset_largecollision_resampled/"
+DATA_PATH = "../data/toydataset_resampled/"
 OUTPUT_PATH = "../outputs/"
 
 #DATASET parameters
@@ -7,10 +8,10 @@ SHUFFLE = True
 DROP_LAST = True
 NUM_WORKERS = 1
 BATCH_SIZE = 16
-NUM_EPOCHS = 2
+NUM_EPOCHS = 50
 
 #Model parameters
-PAST_TRAJECTORY_LENGTH = 2
+PAST_TRAJECTORY_LENGTH = 2.5
 NUM_AGENTS = 2
 NUM_INTENTS = 4
 
