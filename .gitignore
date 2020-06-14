@@ -24,7 +24,7 @@ nuscenes_devkit
 ./data/toydataset
 
 #ignore model outputs
-./outputs/*
+./outputs
 ./models/output/*
 # Created by https://www.toptal.com/developers/gitignore/api/vim,python,pycharm+all
 # Edit at https://www.toptal.com/developers/gitignore?templates=vim,python,pycharm+all

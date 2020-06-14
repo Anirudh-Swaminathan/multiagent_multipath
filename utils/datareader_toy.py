@@ -1,4 +1,5 @@
-# import sys
+import sys
+sys.path.append("../")
 # from collections import Counter
 # from itertools import chain
 # from typing import List
@@ -13,9 +14,9 @@ import cv2
 import os
 import imageio
 from torch.utils.data import Dataset
+import utils.config as cfg
 
-
-DATA_PATH = "../data/toydataset_resampled/" #path to data stored
+DATA_PATH = cfg.DATA_PATH #path to data stored
 NUM_TRAIN = 3500
 NUM_TEST = 500
 NUM_VAL = 1000
