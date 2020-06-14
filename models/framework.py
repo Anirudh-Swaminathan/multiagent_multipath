@@ -261,10 +261,10 @@ class MultiAgentNetwork(NNClassifier):
         # print("past traj shape: ", past_traj.shape)
         # print("gt_future shape: ", gt_future.shape)
 
-        scene_output = self.scene(img) #TODO: Fix dimension mismatch
-        # print("==================================")
-        # print("Scene Output shape: ", scene_output.shape)
-
+        scene_output = self.scene(img) #Shape: [1,32]
+#         print("==================================")
+#         print("Scene Output shape: ", scene_output.shape)
+        
         n_batch = past_traj.shape[0]
         n_vehicles = past_traj.shape[1]
         n_modes = self.n_intents**n_vehicles
@@ -292,11 +292,13 @@ class MultiAgentNetwork(NNClassifier):
 
             intentions = intentions.to(self.device)
             traj_output = self.intent(fcn_out, intentions) 
-            # print(traj_output.shape)
-
+            
             # traj_output: (n_batch, n_vehicles, intent_out)
             # or mean, or max
             traj_output = torch.sum(traj_output, dim=1).squeeze()
+            traj_output = torch.reshape(traj_output, [1, 32]) #Added to fix error during inference
+#             print("traj_output.shape: ", traj_output.shape)
+
             # traj_output: (n_batch, intent_out)
             combined_output = torch.cat((scene_output, traj_output), dim=1)
             # combined_output: (nbatch, scene_out+intent_out)
