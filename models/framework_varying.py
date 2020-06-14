@@ -178,7 +178,7 @@ class FCNPastProcess(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
-        return F.log_softmax(x)
+        return F.relu(x)
 
 
 class IntentionEmbedding(nn.Module):
@@ -299,6 +299,7 @@ class MultiAgentNetwork(NNClassifier):
             # traj_output: (n_batch, n_vehicles, intent_out)
             # or mean, or max
             traj_output = torch.sum(traj_output, dim=1).squeeze()
+#             traj_output = torch.max(traj_output, dim=1)[0].squeeze()
             # traj_output: (n_batch, intent_out)
             combined_output = torch.cat((scene_output, traj_output), dim=1)
             # combined_output: (nbatch, scene_out+intent_out)
@@ -348,7 +349,7 @@ class TrainNetwork(object):
 
     def _init_paths(self):
         # data loading
-        self.exp_name = cfg.EXP_NAME
+        self.exp_name = cfg.EXP_NAME+'_varying/'
         self.dataset_root_dir = cfg.DATA_PATH
 
         # output directory for training checkpoints
@@ -356,7 +357,7 @@ class TrainNetwork(object):
         self.op_dir = cfg.OUTPUT_PATH + self.exp_name # + <experiment nunmber>
 
     def _init_train_stuff(self):
-        self.lr = 1e-3
+        self.lr = 5e-4
         # Change these values #DONE
         self.fcn_out = cfg.FCN_OUT
         self.n_intents = cfg.NUM_INTENTS
@@ -415,7 +416,7 @@ class TrainNetwork(object):
 
     def run_plot_exp(self):
         fig, axes = plt.subplots(ncols=2, figsize=(7, 3))
-        self.exp.run(num_epochs=20, plot=lambda exp: self.plot(
+        self.exp.run(num_epochs=cfg.NUM_EPOCHS, plot=lambda exp: self.plot(
             exp, fig=fig, axes=axes))
 
     def run_exp(self):
@@ -436,7 +437,8 @@ class TrainNetwork(object):
 
 def main():
     tn = TrainNetwork()
-    tn.run_exp() #tn.run_plot_exp()
+#     tn.run_exp() 
+    tn.run_plot_exp()
     tn.save_evaluation()
     tn.save_testing()
 
