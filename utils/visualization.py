@@ -30,7 +30,6 @@ def visualize(intents, inits, ls, vs):
     env = MultiagentEnv(new_scene, init_vs, dt, n)
     ls = []
     vs = []
-    # 4 seconds of image+trajectory; predict the next 6 seconds, probably
     total_frames = 6000
     collided = False
     for i in range(total_frames):
@@ -38,13 +37,8 @@ def visualize(intents, inits, ls, vs):
         collided = c or collided
         ls.append(l)
         vs.append(v)
-    if collided:
-        print("Collision Occurred for new intent!!")
-    else:
-        print("No Collisions occurred for new intent!")
-    # scene.plot_scene(past_ls, past_vs)
     f_new = scene.plot_scene(ls, vs)
-    return f, f_new, collided    
+    return f, f_new, collided
 
 def main():
     s_points = np.load("../data/toydataset/2/2716/init.npy", allow_pickle=True)
