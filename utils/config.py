@@ -1,9 +1,12 @@
 #path parameters
-DATA_PATH = "../data/dataset_vary_resampled/"
+ACTUAL_PATH = "../data/dataset_vary"
+DATA_PATH = ACTUAL_PATH + "_resampled/"
 OUTPUT_PATH = "../outputs/"
+
 
 #Experiment details
 EXP_NAME = "res_gpu" #format: <res/vgg>_<cpu/gpu>_<original/largecollision>_<OPTIONAL: downsample>_epoch_<num_epochs>_pt_<PAST_TAJECTORY_LENGTH>/
+
 BACKBONE = "RESNET" #RESNET | VGG
 
 #DATASET parameters
