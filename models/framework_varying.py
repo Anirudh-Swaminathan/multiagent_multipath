@@ -356,7 +356,7 @@ class TrainNetwork(object):
         self.op_dir = cfg.OUTPUT_PATH + self.exp_name # + <experiment nunmber>
 
     def _init_train_stuff(self):
-        self.lr = 1e-3
+        self.lr = 5e-4
         # Change these values #DONE
         self.fcn_out = cfg.FCN_OUT
         self.n_intents = cfg.NUM_INTENTS
@@ -415,7 +415,7 @@ class TrainNetwork(object):
 
     def run_plot_exp(self):
         fig, axes = plt.subplots(ncols=2, figsize=(7, 3))
-        self.exp.run(num_epochs=20, plot=lambda exp: self.plot(
+        self.exp.run(num_epochs=cfg.NUM_EPOCHS, plot=lambda exp: self.plot(
             exp, fig=fig, axes=axes))
 
     def run_exp(self):

@@ -264,8 +264,7 @@ class Experiment(object):
             self.stats_manager.init()
 
             for data2,data3,data4 in zip(*self.train_loaders):
-                for data in [data2,data3,data4]:
-                    data = np.random.choice([data2,data3,data4])
+                for data in [data4]:#,data3,data4]:
 
                     img, past_traj, true_future = data["map"], data["coords"], data["ground_truth"]
                     img, past_traj, true_future = img.to(self.net.device), past_traj.to(self.net.device), true_future.to(self.net.device)
@@ -298,7 +297,7 @@ class Experiment(object):
         with torch.no_grad():
             for data2,data3,data4 in zip(*self.val_loaders):
                 
-                data = np.random.choice([data2,data3,data4])
+                data = data4
                 
                 x, p, f = data["map"], data["coords"], data["ground_truth"]
                 x, p, f = x.to(self.net.device), p.to(self.net.device), f.to(self.net.device)
@@ -317,7 +316,7 @@ class Experiment(object):
         with torch.no_grad():
             for data2,data3,data4 in zip(*self.test_loaders):
                 
-                data = np.random.choice([data2,data3,data4])
+                data = data4
                 
                 x, p, f = data["map"], data["coords"], data["ground_truth"]
                 x, p, f = x.to(self.net.device), p.to(self.net.device), f.to(self.net.device)
