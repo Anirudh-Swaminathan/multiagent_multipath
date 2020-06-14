@@ -266,7 +266,6 @@ class MultiAgentNetwork(NNClassifier):
         # print("Scene Output shape: ", scene_output.shape)
 
         n_batch = past_traj.shape[0]
-
         n_vehicles = past_traj.shape[1]
         n_modes = self.n_intents**n_vehicles
         scores = torch.zeros(n_batch, n_modes)
@@ -280,9 +279,9 @@ class MultiAgentNetwork(NNClassifier):
         gt_index = self.n_intents**torch.arange(n_vehicles)
         gt_index = gt_index.repeat(n_batch, 1)
         gt_index = gt_index.to(self.device)
-
         gt_index = torch.sum(gt_index*gt_future, dim=1, keepdim=True)
         
+        scores = scores.to(self.device)
         for mode in range(n_modes):
             intentions = torch.zeros(n_batch, n_vehicles, self.n_intents) 
             for agent in range(n_vehicles):
@@ -298,13 +297,13 @@ class MultiAgentNetwork(NNClassifier):
 
             # traj_output: (n_batch, n_vehicles, intent_out)
             # or mean, or max
-            traj_output = torch.sum(traj_output, dim=1).squeeze()
             # traj_output: (n_batch, intent_out)
-            combined_output = torch.cat((scene_output, traj_output), dim=1)
-            # combined_output: (nbatch, scene_out+intent_out)
-            scores[:, mode] = self.score(combined_output)
+            for agent in range(n_vehicles):
+                combined_output = torch.cat((scene_output, traj_output[:,agent,:]), dim=1)
+                # combined_output: (nbatch, scene_out+intent_out)
+                scores[:, mode] = scores[:, mode]+self.score(combined_output)
         #scores = F.softmax(scores)
-        scores = scores.to(self.device)
+        
         return scores, gt_index.squeeze()
 
 
@@ -425,14 +424,12 @@ class TrainNetwork(object):
     def save_evaluation(self):
         exp_val = self.exp.evaluate()
         with open(self.op_dir+'val_result.txt', 'a') as t_file:
-            print(exp_val)
-            t_file.write(str(exp_val))
+            t_file.write(exp_val, t_file)
 
     def save_testing(self):
         exp_test = self.exp.test()
         with open(self.op_dir+'test_result.txt', 'a') as t_file:
-            print(exp_test)
-            t_file.write(str(exp_test))
+            t_file.write(exp_test, t_file)
 
 def main():
     tn = TrainNetwork()

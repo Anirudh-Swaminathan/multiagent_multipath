@@ -296,7 +296,7 @@ class Experiment(object):
         self.stats_manager.init()
         self.net.eval()
         with torch.no_grad():
-            for data2,data3,dat4 in zip(self.val_loaders):
+            for data2,data3,data4 in zip(*self.val_loaders):
                 
                 data = np.random.choice([data2,data3,data4])
                 
@@ -315,7 +315,7 @@ class Experiment(object):
         self.stats_manager.init()
         self.net.eval()
         with torch.no_grad():
-            for data2,data3,dat4 in zip(self.test_loaders):
+            for data2,data3,data4 in zip(*self.test_loaders):
                 
                 data = np.random.choice([data2,data3,data4])
                 

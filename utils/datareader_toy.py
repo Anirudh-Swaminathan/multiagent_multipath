@@ -25,9 +25,10 @@ NUM_VAL = 100
 
 class toyScenesdata(Dataset):
 
-    def __init__(self, set_name="train", agents = 2):        
+    def __init__(self, set_name="train", agents = 2, traj_time="2.5"):        
 
         self.set_name = set_name
+        self.traj_time = ("", "_"+str(traj_time))[str(traj_time) != "2.5"]
 
         assert(self.set_name in ["train", "test", "val"])
 #         print("Reading from ", DATA_PATH+str(agents)+"/")
@@ -74,7 +75,7 @@ class toyScenesdata(Dataset):
                 
 
         coords = np.load(self.DATA_PATH+scene+"/ls.npy", allow_pickle=True)
-        env_map = np.array(cv2.imread(self.DATA_PATH+scene+"/scene.png"))
+        env_map = np.array(cv2.imread(self.DATA_PATH+scene+"/scene"+self.traj_time+".png"))
         gt = np.array(list(np.array(np.load(self.DATA_PATH+scene+"/init.npy", allow_pickle=True))))
         count = 0
 
