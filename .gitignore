@@ -22,10 +22,14 @@ nuscenes_devkit
 ./data/zipped files
 *.npy
 ./data/toydataset
+./data/*
 
 #ignore model outputs
 ./outputs
 ./models/output/*
+
+#ignore config file
+utils/config.py
 # Created by https://www.toptal.com/developers/gitignore/api/vim,python,pycharm+all
 # Edit at https://www.toptal.com/developers/gitignore?templates=vim,python,pycharm+all
 
