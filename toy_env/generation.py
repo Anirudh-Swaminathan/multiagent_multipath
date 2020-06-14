@@ -2,11 +2,10 @@ import numpy as np
 from scene import *
 from env import *
 import os
+from multiprocessing import Process
 
-path = "./dataset_largecollision/"
-
-def generate_sample(id):
-    n = 2
+def generate_sample(id, n):
+    path = "../data/dataset_vary/"+str(n)+'/'
     # 4 seconds of image+trajectory; predict the next 6 seconds, probably
     total_frames = 6000
     disp_time = [1000, 1500, 2000, 2500]
@@ -40,20 +39,28 @@ def generate_sample(id):
             np.save(folder+'ls', ls)
             np.save(folder+'vs', vs)
             np.save(folder+'init', starting_points)
-            plts[0].savefig(folder+'scene.png', dpi='figure')
+            plts[0].savefig(folder+'scene_1.0.png', dpi='figure')
             plts[1].savefig(folder+'scene_1.5.png', dpi='figure')
             plts[2].savefig(folder+'scene_2.0.png', dpi='figure')
-            plts[3].savefig(folder+'scene_2.5.png', dpi='figure')
+            plts[3].savefig(folder+'scene.png', dpi='figure')
             print(plt.get_fignums())
-            for f in plt.get_fignums():
-                plt.close(f)
-        
+            
             print('Collisions:', collision_count)
+        for f in plt.get_fignums():
+                plt.close(f)
+
+def generate_wrapper(n):
+    os.mkdir("../data/dataset_vary/"+str(n)+'/')
+    for i in range(1000):
+        generate_sample(i, n)
+        print(n, i)
 
 
 
 if __name__ == '__main__':
-    #generate_sample(1)
-    for i in range(5000):
-        generate_sample(i)
-        print(i)
+    p=[]
+    for n in [4,3,2,5]:
+        p=Process(target=generate_wrapper, args=(n,))
+        p.start()
+            
+    

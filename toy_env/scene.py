@@ -32,6 +32,10 @@ class IntersectionScene:
         self.ih = 200
 
         self.starting_points = list()
+        for i in range(2):
+            self.add_starting_points()
+
+    def add_starting_points(self):
         # bottom lane => x in (intersection_bounds+vehicle_width/2, intersection_bounds-vehicle_width/2); y in (-(40+vehicle_length/2) to -(40 + closeness))
         sbot_posx = np.random.uniform(self.intersection_bounds[0][0]+self.vw/2, self.intersection_bounds[1][0]-self.vw/2)
         sbot_posy = np.random.uniform(self.intersection_bounds[0][1]-self.ih/2, self.intersection_bounds[0][1]-self.closeness)
@@ -134,9 +138,6 @@ class IntersectionScene:
             
         sl = tuple((sl_pos, sl_vel, sl_int, sl_gol, sl_gvel))
         self.starting_points.append(sl)
-        #print("There are {} possible starting points to choose 2 vehicles from".format(len(self.starting_points)))
-        #for s in self.starting_points:
-            #print(s)
 
     def get_scene_image(self):
         # initialize fully black image
