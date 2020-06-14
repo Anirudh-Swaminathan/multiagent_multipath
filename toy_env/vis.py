@@ -18,17 +18,17 @@ class IntersectionScene:
     def __init__(self, intents, starting_points):
         assert(len(intents) == len(starting_points))
         # bottom left coordinate and top right coordinate
-        self.intersection_bounds = [(-40, -40), (40, 40)]
-        self.image_bounds = [(-200, -200), (200, 200)]
+        self.intersection_bounds = [(-50, -50), (50, 50)]
+        self.image_bounds = [(-250, -250), (250, 250)]
 
         # maximum distance away from intersection to generate the vehicle
-        self.closeness = 75
+        self.closeness = 50
         self.vw = 10
         self.vh = 20
         # distance from intersection minimum
-        self.iw = 60
-        self.ih = 60
-        
+        self.iw = 200
+        self.ih = 200
+
         self.starting_points = list()
         for i in range(len(intents)):
             sp = np.copy(starting_points[i])
@@ -95,7 +95,8 @@ class IntersectionScene:
     
     def gen_top(self, sp):
         # top lane => x in (intersection_bounds+vehicle_width/2, intersection_bounds-vehicle_width/2); y in ((40+vehicle_length/2), (40 + closeness))
-        stop_posx = 
+        stop_posx = sp[0][0]
+        stop_posy = so[0][1]
         stop_pos = np.array([stop_posx, stop_posy])
         stop_vel = sp[1]
         # random choice of turn
@@ -139,7 +140,8 @@ class IntersectionScene:
             sl_gvel = np.array([0, -1])
             sl_golx = np.random.uniform(self.intersection_bounds[0][0]+self.vw/2, self.intersection_bounds[1][0]-self.vw/2)
             sl_goly = np.random.uniform(self.intersection_bounds[0][1]-self.ih/2, self.intersection_bounds[0][1]-self.closeness)
-            sl_gol = np.array([sl_golx, sl_goly])  
+            sl_gol = np.array([sl_golx, sl_goly])
+            
         sl = tuple((sl_pos, sl_vel, sl_int, sl_gol, sl_gvel))
         self.starting_points.append(sl)
 
@@ -167,9 +169,11 @@ class IntersectionScene:
         ls = np.array(ls)
         vs = np.array(vs)
         scene_img = self.get_scene_image()
-        plt.xlim(self.image_bounds[0][0], self.image_bounds[1][0])
-        plt.ylim(self.image_bounds[0][1], self.image_bounds[1][1])
-        plt.imshow(scene_img, cmap='gray', extent=(self.image_bounds[0][0], self.image_bounds[1][0], self.image_bounds[0][1], self.image_bounds[1][1]))
+        fig, ax = plt.subplots( nrows=1, ncols=1 )
+        ax.set_xlim(self.image_bounds[0][0], self.image_bounds[1][0])
+        ax.set_ylim(self.image_bounds[0][1], self.image_bounds[1][1])
+        ax.imshow(scene_img, cmap='gray', extent=(self.image_bounds[0][0], self.image_bounds[1][0], self.image_bounds[0][1], self.image_bounds[1][1]))
+        n=ls.shape[1]
         for i in range(n):
             plt.scatter(ls[:, i, 0], ls[:, i, 1])
             d_vec = vs[-1, i, :]
@@ -177,7 +181,6 @@ class IntersectionScene:
             angle = 180.0 * angleRad / np.pi
             width = 20
             height = 10
-            print(angle)
             # SE(2) -> translation + rotation for lower coordinates
             # sw = Rsb + p
             tlx = -width/2
@@ -185,17 +188,37 @@ class IntersectionScene:
             lx = ls[-1, i, 0] + tlx*np.cos(angleRad) - tly*np.sin(angleRad)
             ly = ls[-1, i, 1] + tlx*np.sin(angleRad) + tly*np.cos(angleRad)
             rect = patches.Rectangle((lx, ly), width, height, angle, facecolor='red')
-            plt.gca().add_patch(rect)
-
-        plt.show()
+            ax.add_patch(rect)
+        return fig
 
 
 
 if __name__ == '__main__':
-    from env import MultiagentEnv
+    from env_vis import MultiagentEnv
     n = 2
+    s_points = np.load("../data/toydataset/2/2716/init.npy", allow_pickle=True)
+    vs = np.load("../data/toydataset/2/2716/vs.npy")
+    ls = np.load("../data/toydataset/2/2716/ls.npy")
+    init_vs = vs[0, :, :]
+    intents = s_points[:, 2]
+    new_intents = np.array([2, 3])
+    print(intents.shape)
+    print(new_intents.shape)
+    print(s_points.shape)
+    print(init_vs.shape)
+    print(vs.shape)
+    print(init_vs)
     scene = IntersectionScene(intents, s_points)
-    env = MultiagentEnv(scene, 0.001, n)
+    print(len(scene.starting_points))
+    print(scene.starting_points)
+    f = scene.plot_scene(ls, vs)
+    f.show()
+       
+    # plot for new scene
+    new_scene = IntersectionScene(new_intents, s_points)
+    print(len(new_scene.starting_points))
+    print(new_scene.starting_points)
+    env = MultiagentEnv(new_scene, init_vs, 0.001, n)
     ls = []
     vs = []
     past_ls = []
@@ -226,10 +249,11 @@ if __name__ == '__main__':
         # this plot can be changed to save. Only display/save if it did not have any collisions
         # also save the past + future trajectories
         # TODO save image + past + future trajectories
-        scene.plot_scene(past_ls, past_vs)
-        scene.plot_scene(ls, vs)
-        future_ls = np.array(future_ls)
-        future_vs = np.array(future_vs)
-        print(future_ls.shape)
-        print(future_vs.shape)
+    # scene.plot_scene(past_ls, past_vs)
+    f = scene.plot_scene(ls, vs)
+    f.show()
+    future_ls = np.array(future_ls)
+    future_vs = np.array(future_vs)
+    print(future_ls.shape)
+    print(future_vs.shape)
 

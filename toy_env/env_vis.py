@@ -7,9 +7,10 @@ TR=3
 
 class Agent:
     # Velocity: m/s
-    def __init__(self, location, direction, intention, dt):
+    def __init__(self, location, direction, intention, velocity, dt):
         self.location=location
-        self.velocity=np.random.uniform(low=20, high=60)*direction/np.linalg.norm(direction)
+        # self.velocity=np.random.uniform(low=20, high=60)*direction/np.linalg.norm(direction)
+        self.velocity = velocity
         self.intention=intention
         self.brake_flag=False
         self.dt=dt
@@ -47,7 +48,7 @@ class Agent:
                     self.velocity=self.velocity*0
         elif self.intention==TL:
             r=self.turn_check()
-            if r is not None:
+            if r is not None and np.abs(self.location[0])<60 and np.abs(self.location[1])<60:
                 dir=self.velocity[-1::-1]*np.array([-1,1])
                 dvdt=np.linalg.norm(self.velocity)**2/r
                 self.velocity=self.velocity+dvdt*dir/np.linalg.norm(dir)*self.dt
@@ -56,7 +57,7 @@ class Agent:
                     self.intention=FW
         elif self.intention==TR:
             r=self.turn_check()
-            if r is not None:
+            if r is not None and np.abs(self.location[0])<60 and np.abs(self.location[1])<60:
                 dir=self.velocity[-1::-1]*np.array([1,-1])
                 dvdt=np.linalg.norm(self.velocity)**2/r
                 self.velocity=self.velocity+dvdt*dir/np.linalg.norm(dir)*self.dt
@@ -72,18 +73,22 @@ class MultiagentEnv:
     # dt: Simulation timestep
     # n: Number of vehicles
     
-    def __init__(self, scene, dt, n=2):
+    def __init__(self, scene, init_vs, dt, n=2):
         self.scene=scene
         self.dt=dt
         self.n=n
         self.vehicles=[]
         self.collided = False
-        self.collision_eps = 1e-1
+        self.collision_eps = 20
         
-        #init_=[scene.starting_points[i] for i in np.random.choice(len(self.scene.starting_points), self.n)]
-        init_ = [scene.starting_points[i] for i in np.random.permutation(len(self.scene.starting_points))[:self.n]]
-        for p in init_:
-            a=Agent(p[0], p[1], p[2], self.dt)
+        #self.init_=[scene.starting_points[i] for i in np.random.choice(len(self.scene.starting_points), self.n)]
+        # self.init_ = [scene.starting_points[i] for i in np.random.permutation(len(self.scene.starting_points))[:self.n]]
+        assert(len(scene.starting_points) == self.n)
+        self.init_ = [scene.starting_points[i] for i in range(self.n)]
+        for i in range(len(self.init_)):
+            p = self.init_[i]
+            v = init_vs[i]
+            a=Agent(p[0], p[1], p[2], v, self.dt)
             a.set_goal(p[3], p[4])
             self.vehicles.append(a)
             
