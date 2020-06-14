@@ -83,7 +83,7 @@ class MultiagentEnv:
         
         #self.init_=[scene.starting_points[i] for i in np.random.choice(len(self.scene.starting_points), self.n)]
         # self.init_ = [scene.starting_points[i] for i in np.random.permutation(len(self.scene.starting_points))[:self.n]]
-        assert(len(scene.starting_points[i] == self.n))
+        assert(len(scene.starting_points) == self.n)
         self.init_ = [scene.starting_points[i] for i in range(self.n)]
         for i in range(len(self.init_)):
             p = self.init_[i]

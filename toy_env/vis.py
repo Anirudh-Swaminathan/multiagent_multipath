@@ -95,7 +95,8 @@ class IntersectionScene:
     
     def gen_top(self, sp):
         # top lane => x in (intersection_bounds+vehicle_width/2, intersection_bounds-vehicle_width/2); y in ((40+vehicle_length/2), (40 + closeness))
-        stop_posx = 
+        stop_posx = sp[0][0]
+        stop_posy = so[0][1]
         stop_pos = np.array([stop_posx, stop_posy])
         stop_vel = sp[1]
         # random choice of turn
@@ -193,10 +194,65 @@ class IntersectionScene:
 
 
 if __name__ == '__main__':
-    from env import MultiagentEnv
+    from env_vis import MultiagentEnv
     n = 2
+    s_points = np.load("../data/toydataset/2/2716/init.npy", allow_pickle=True)
+    vs = np.load("../data/toydataset/2/2716/vs.npy")
+    init_vs = vs[-1, :]
+    intents = s_points[:, 2]
+    new_intents = np.array([2, 3])
+    print(intents.shape)
+    print(new_intents.shape)
+    print(s_points.shape)
+    print(init_vs.shape)
+    print(vs.shape)
+    print(init_vs)
     scene = IntersectionScene(intents, s_points)
-    env = MultiagentEnv(scene, 0.001, n)
+    print(len(scene.starting_points))
+    print(scene.starting_points)
+    env = MultiagentEnv(scene, init_vs, 0.001, n)
+    ls = []
+    vs = []
+    past_ls = []
+    past_vs = []
+    future_ls = []
+    future_vs = []
+    # 4 seconds of image+trajectory; predict the next 6 seconds, probably
+    total_frames = 6000
+    disp_time = np.rint(0.4*total_frames)
+    collided = False
+    for i in range(total_frames):
+        c, l, v = env.step()
+        collided = c or collided
+        ls.append(l)
+        vs.append(v)
+        if i <= disp_time:
+            past_ls.append(l)
+            past_vs.append(v)
+        else:
+            future_ls.append(l)
+            future_vs.append(v)
+        if i == disp_time:
+            scene.plot_scene(past_ls, past_vs)
+    if collided:
+        print("Collision Occurred!!")
+    else:
+        print("No Collisions occurred!")
+        # this plot can be changed to save. Only display/save if it did not have any collisions
+        # also save the past + future trajectories
+        # TODO save image + past + future trajectories
+        scene.plot_scene(past_ls, past_vs)
+        scene.plot_scene(ls, vs)
+        future_ls = np.array(future_ls)
+        future_vs = np.array(future_vs)
+        print(future_ls.shape)
+        print(future_vs.shape)
+       
+    # plot for new scene
+    new_scene = IntersectionScene(new_intents, s_points)
+    print(len(new_scene.starting_points))
+    print(new_scene.starting_points)
+    env = MultiagentEnv(new_scene, init_vs, 0.001, n)
     ls = []
     vs = []
     past_ls = []
