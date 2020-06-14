@@ -47,7 +47,7 @@ class Agent:
                     self.velocity=self.velocity*0
         elif self.intention==TL:
             r=self.turn_check()
-            if r is not None:
+            if r is not None and np.abs(self.location[0])<60 and np.abs(self.location[1])<60:
                 dir=self.velocity[-1::-1]*np.array([-1,1])
                 dvdt=np.linalg.norm(self.velocity)**2/r
                 self.velocity=self.velocity+dvdt*dir/np.linalg.norm(dir)*self.dt
@@ -56,7 +56,7 @@ class Agent:
                     self.intention=FW
         elif self.intention==TR:
             r=self.turn_check()
-            if r is not None:
+            if r is not None and np.abs(self.location[0])<60 and np.abs(self.location[1])<60:
                 dir=self.velocity[-1::-1]*np.array([1,-1])
                 dvdt=np.linalg.norm(self.velocity)**2/r
                 self.velocity=self.velocity+dvdt*dir/np.linalg.norm(dir)*self.dt
@@ -78,11 +78,11 @@ class MultiagentEnv:
         self.n=n
         self.vehicles=[]
         self.collided = False
-        self.collision_eps = 1e-1
+        self.collision_eps = 20
         
-        #init_=[scene.starting_points[i] for i in np.random.choice(len(self.scene.starting_points), self.n)]
-        init_ = [scene.starting_points[i] for i in np.random.permutation(len(self.scene.starting_points))[:self.n]]
-        for p in init_:
+        #self.init_=[scene.starting_points[i] for i in np.random.choice(len(self.scene.starting_points), self.n)]
+        self.init_ = [scene.starting_points[i] for i in np.random.permutation(len(self.scene.starting_points))[:self.n]]
+        for p in self.init_:
             a=Agent(p[0], p[1], p[2], self.dt)
             a.set_goal(p[3], p[4])
             self.vehicles.append(a)
