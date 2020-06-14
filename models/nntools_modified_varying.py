@@ -264,18 +264,18 @@ class Experiment(object):
             self.stats_manager.init()
 
             for data2,data3,data4 in zip(*self.train_loaders):
-                
-                data = np.random.choice([data2,data3,data4])
-                
-                img, past_traj, true_future = data["map"], data["coords"], data["ground_truth"]
-                img, past_traj, true_future = img.to(self.net.device), past_traj.to(self.net.device), true_future.to(self.net.device)
-                self.optimizer.zero_grad()
-                y, d = self.net.forward(img, past_traj, true_future)
-                loss = self.net.criterion(y, d)
-                loss.backward()
-                self.optimizer.step()
-                with torch.no_grad():
-                    self.stats_manager.accumulate(loss.item(), img, y, d) # TODONE: Change 0 to x
+                for data in [data2,data3,data4]:
+                    data = np.random.choice([data2,data3,data4])
+
+                    img, past_traj, true_future = data["map"], data["coords"], data["ground_truth"]
+                    img, past_traj, true_future = img.to(self.net.device), past_traj.to(self.net.device), true_future.to(self.net.device)
+                    self.optimizer.zero_grad()
+                    y, d = self.net.forward(img, past_traj, true_future)
+                    loss = self.net.criterion(y, d)
+                    loss.backward()
+                    self.optimizer.step()
+                    with torch.no_grad():
+                        self.stats_manager.accumulate(loss.item(), img, y, d) # TODONE: Change 0 to x
             if not self.perform_validation_during_training:
                 self.history.append(self.stats_manager.summarize())
             else:
