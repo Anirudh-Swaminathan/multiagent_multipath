@@ -16,7 +16,6 @@ import imageio
 from torch.utils.data import Dataset
 import utils.config as cfg
 
-
 DATA_PATH = cfg.DATA_PATH #path to data stored
 NUM_TRAIN = 700
 NUM_TEST = 200

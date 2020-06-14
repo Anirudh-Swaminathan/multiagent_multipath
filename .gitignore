@@ -25,8 +25,11 @@ nuscenes_devkit
 ./data/*
 
 #ignore model outputs
-./outputs/*
+./outputs
 ./models/output/*
+
+#ignore config file
+utils/config.py
 # Created by https://www.toptal.com/developers/gitignore/api/vim,python,pycharm+all
 # Edit at https://www.toptal.com/developers/gitignore?templates=vim,python,pycharm+all
 
