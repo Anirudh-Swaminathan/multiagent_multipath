@@ -1,5 +1,5 @@
 #path parameters
-DATA_PATH = "../data/dataset_largecollision_resampled/"
+DATA_PATH = "../data/toydataset_resampled/" #"../data/dataset_largecollision_resampled/"
 OUTPUT_PATH = "../outputs/"
 
 #Experiment details
