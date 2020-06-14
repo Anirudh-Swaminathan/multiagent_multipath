@@ -198,7 +198,8 @@ if __name__ == '__main__':
     n = 2
     s_points = np.load("../data/toydataset/2/2716/init.npy", allow_pickle=True)
     vs = np.load("../data/toydataset/2/2716/vs.npy")
-    init_vs = vs[-1, :]
+    ls = np.load("../data/toydataset/2/2716/ls.npy")
+    init_vs = vs[0, :, :]
     intents = s_points[:, 2]
     new_intents = np.array([2, 3])
     print(intents.shape)
@@ -210,43 +211,8 @@ if __name__ == '__main__':
     scene = IntersectionScene(intents, s_points)
     print(len(scene.starting_points))
     print(scene.starting_points)
-    env = MultiagentEnv(scene, init_vs, 0.001, n)
-    ls = []
-    vs = []
-    past_ls = []
-    past_vs = []
-    future_ls = []
-    future_vs = []
-    # 4 seconds of image+trajectory; predict the next 6 seconds, probably
-    total_frames = 6000
-    disp_time = np.rint(0.4*total_frames)
-    collided = False
-    for i in range(total_frames):
-        c, l, v = env.step()
-        collided = c or collided
-        ls.append(l)
-        vs.append(v)
-        if i <= disp_time:
-            past_ls.append(l)
-            past_vs.append(v)
-        else:
-            future_ls.append(l)
-            future_vs.append(v)
-        if i == disp_time:
-            scene.plot_scene(past_ls, past_vs)
-    if collided:
-        print("Collision Occurred!!")
-    else:
-        print("No Collisions occurred!")
-        # this plot can be changed to save. Only display/save if it did not have any collisions
-        # also save the past + future trajectories
-        # TODO save image + past + future trajectories
-        scene.plot_scene(past_ls, past_vs)
-        scene.plot_scene(ls, vs)
-        future_ls = np.array(future_ls)
-        future_vs = np.array(future_vs)
-        print(future_ls.shape)
-        print(future_vs.shape)
+    f = scene.plot_scene(ls, vs)
+    f.show()
        
     # plot for new scene
     new_scene = IntersectionScene(new_intents, s_points)
@@ -283,10 +249,11 @@ if __name__ == '__main__':
         # this plot can be changed to save. Only display/save if it did not have any collisions
         # also save the past + future trajectories
         # TODO save image + past + future trajectories
-        scene.plot_scene(past_ls, past_vs)
-        scene.plot_scene(ls, vs)
-        future_ls = np.array(future_ls)
-        future_vs = np.array(future_vs)
-        print(future_ls.shape)
-        print(future_vs.shape)
+    # scene.plot_scene(past_ls, past_vs)
+    f = scene.plot_scene(ls, vs)
+    f.show()
+    future_ls = np.array(future_ls)
+    future_vs = np.array(future_vs)
+    print(future_ls.shape)
+    print(future_vs.shape)
 
