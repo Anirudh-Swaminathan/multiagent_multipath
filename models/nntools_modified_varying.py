@@ -265,6 +265,7 @@ class Experiment(object):
 
             for data2,data3,data4 in zip(*self.train_loaders):
                 for data in [data2,data3,data4]:
+#                     data = np.random.choice([data2,data3,data4])
 
                     img, past_traj, true_future = data["map"], data["coords"], data["ground_truth"]
                     img, past_traj, true_future = img.to(self.net.device), past_traj.to(self.net.device), true_future.to(self.net.device)

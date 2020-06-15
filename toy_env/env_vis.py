@@ -48,7 +48,7 @@ class Agent:
                     self.velocity=self.velocity*0
         elif self.intention==TL:
             r=self.turn_check()
-            if r is not None and np.abs(self.location[0])<60 and np.abs(self.location[1])<60:
+            if r is not None and np.abs(self.location[0])<120 and np.abs(self.location[1])<120:
                 dir=self.velocity[-1::-1]*np.array([-1,1])
                 dvdt=np.linalg.norm(self.velocity)**2/r
                 self.velocity=self.velocity+dvdt*dir/np.linalg.norm(dir)*self.dt
@@ -57,7 +57,7 @@ class Agent:
                     self.intention=FW
         elif self.intention==TR:
             r=self.turn_check()
-            if r is not None and np.abs(self.location[0])<60 and np.abs(self.location[1])<60:
+            if r is not None and np.abs(self.location[0])<120 and np.abs(self.location[1])<120:
                 dir=self.velocity[-1::-1]*np.array([1,-1])
                 dvdt=np.linalg.norm(self.velocity)**2/r
                 self.velocity=self.velocity+dvdt*dir/np.linalg.norm(dir)*self.dt
@@ -129,10 +129,10 @@ class MultiagentEnv:
         # check collision for all vehicles with scene first
             for i in range(len(self.vehicles)):
                 cur_a = self.vehicles[i]
-                col = self.check_scene_collision(cur_a)
-                self.collided = col or self.collided
-                if self.collided:
-                    break
+                #col = self.check_scene_collision(cur_a)
+                #self.collided = col or self.collided
+                #if self.collided:
+                #    break
                 # check for collision with its neighbors next
                 for j in range(i+1, len(self.vehicles), 1):
                     coln = self.check_pair_collision(cur_a, self.vehicles[j])
