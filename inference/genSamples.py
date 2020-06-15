@@ -47,22 +47,34 @@ def visualize(intents, inits, init_vs, filePath):
         collided = c or collided
         ls.append(l)
         vs.append(v)
-        if i == 2500:
-            f_new = new_scene.plot_scene(ls, vs)
-            f_new.savefig(folder_name + "scene.png")
+        if i <= 2500:
+            past_ls.append(l)
+            past_vs.append(v)
+
+#         if i == 2500:
+#             f_new = new_scene.plot_scene(ls, vs)
+#             f_new.savefig(folder_name + "scene.png")
     
     inits = np.array(inits)
     ls = np.array(ls)
     vs = np.array(vs)
-    
-    f_new = new_scene.plot_scene(ls, vs)
-    f_new.savefig(folder_name + "full_scene.png")
+    past_ls = np.array(past_ls)
+    past_vs = np.array(past_vs)
         
-    np.save(folder_name + "init.npy", inits)
-    np.save(folder_name + "ls.npy", ls)
-    np.save(folder_name + "vs.npy", vs)
     if collided:
+        f_new = new_scene.plot_scene(past_ls, past_vs)
+        f_new.savefig(folder_name + "scene.png")
+        
+        f_new = new_scene.plot_scene(ls, vs)
+        f_new.savefig(folder_name + "full_scene.png")
+        
+        np.save(folder_name + "init.npy", inits)
+        np.save(folder_name + "ls.npy", ls)
+        np.save(folder_name + "vs.npy", vs)
+        
         print("Collided")
+    else:
+        print("Not Collided | Not saved")
     
     return
 
@@ -80,19 +92,19 @@ def main():
     
     for agent in range(n_agents):
         if agent == 0:
-            agent_pos = np.array([0, -100])
+            agent_pos = np.array([0, -120])
             agent_dir = np.array([0, 1])
             agent_intent = intents[agent]
             agent_goal_pos = np.array([-50,10])
             agent_goal_dir = np.array([-1, 0])
-            agent_init_vs = np.random.uniform(low=25, high=35)*agent_dir/np.linalg.norm(agent_dir)
+            agent_init_vs = np.random.uniform(low=26, high=26)*agent_dir/np.linalg.norm(agent_dir)
         elif agent == 1:
-            agent_pos = np.array([-100, 0])
+            agent_pos = np.array([-120, 0])
             agent_dir = np.array([1, 0])
             agent_intent = intents[agent]
             agent_goal_pos = np.array([10,-50])
             agent_goal_dir = np.array([0, -1])
-            agent_init_vs = np.random.uniform(low=25, high=35)*agent_dir/np.linalg.norm(agent_dir)
+            agent_init_vs = np.random.uniform(low=26, high=26)*agent_dir/np.linalg.norm(agent_dir)
             
         agent_sp = (agent_pos, agent_dir, agent_intent, agent_goal_pos, agent_goal_dir)
         starting_points.append(agent_sp)
