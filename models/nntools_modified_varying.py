@@ -283,6 +283,7 @@ class Experiment(object):
                     (self.stats_manager.summarize(), self.evaluate()))
             print("Epoch {} (Time: {:.2f}s)".format(
                 self.epoch, time.time() - s))
+            print(self.history[-1])
             self.save()
             if plot is not None:
                 plot(self)
@@ -297,14 +298,12 @@ class Experiment(object):
         self.net.eval()
         with torch.no_grad():
             for data2,data3,data4 in zip(*self.val_loaders):
-                
-                data = np.random.choice([data2,data3,data4])
-                
-                x, p, f = data["map"], data["coords"], data["ground_truth"]
-                x, p, f = x.to(self.net.device), p.to(self.net.device), f.to(self.net.device)
-                y, d = self.net.forward(x, p, f)
-                loss = self.net.criterion(y, d)
-                self.stats_manager.accumulate(loss.item(), x, y, d)
+                for data in [data2, data3, data4]:
+                    x, p, f = data["map"], data["coords"], data["ground_truth"]
+                    x, p, f = x.to(self.net.device), p.to(self.net.device), f.to(self.net.device)
+                    y, d = self.net.forward(x, p, f)
+                    loss = self.net.criterion(y, d)
+                    self.stats_manager.accumulate(loss.item(), x, y, d)
         self.net.train()
         return self.stats_manager.summarize()
 
@@ -314,16 +313,16 @@ class Experiment(object):
         """
         self.stats_manager.init()
         self.net.eval()
+        scores = []
         with torch.no_grad():
-            for data2,data3,data4 in zip(*self.test_loaders):
-                
-                data = np.random.choice([data2,data3,data4])
-                
-                x, p, f = data["map"], data["coords"], data["ground_truth"]
-                x, p, f = x.to(self.net.device), p.to(self.net.device), f.to(self.net.device)
-                y, d = self.net.forward(x, p, f)
-                loss = self.net.criterion(y, d)
-                self.stats_manager.accumulate(loss.item(), x, y, d)
+            for dataset in self.test_loaders:
+                for data in dataset:
+                    x, p, f = data["map"], data["coords"], data["ground_truth"]
+                    x, p, f = x.to(self.net.device), p.to(self.net.device), f.to(self.net.device)
+                    y, d = self.net.forward(x, p, f)
+                    loss = self.net.criterion(y, d)
+                    self.stats_manager.accumulate(loss.item(), x, y, d)
+                scores.append(self.stats_manager.summarize())
         self.net.train()
-        return self.stats_manager.summarize()
+        return scores
 

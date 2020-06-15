@@ -417,7 +417,7 @@ class TrainNetwork(object):
 
     def run_plot_exp(self):
         fig, axes = plt.subplots(ncols=2, figsize=(7, 3))
-        self.exp.run(num_epochs=20, plot=lambda exp: self.plot(
+        self.exp.run(num_epochs=cfg.NUM_EPOCHS, plot=lambda exp: self.plot(
             exp, fig=fig, axes=axes))
 
     def run_exp(self):
