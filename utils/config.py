@@ -5,7 +5,7 @@ OUTPUT_PATH = "../outputs/"
 
 
 #Experiment details
-EXP_NAME = "res_gpu" #format: <res/vgg>_<cpu/gpu>_<original/largecollision>_<OPTIONAL: downsample>_epoch_<num_epochs>_pt_<PAST_TAJECTORY_LENGTH>/
+EXP_NAME = "res_gpu_vary_epochs_150_downsample_pt_2_5_data2" #format: <res/vgg>_<cpu/gpu>_<original/largecollision>_<OPTIONAL: downsample>_epoch_<num_epochs>_pt_<PAST_TAJECTORY_LENGTH>/
 
 BACKBONE = "RESNET" #RESNET | VGG
 
@@ -14,7 +14,7 @@ SHUFFLE = True
 DROP_LAST = True
 NUM_WORKERS = 1
 BATCH_SIZE = 16
-NUM_EPOCHS = 40
+NUM_EPOCHS = 150
 
 #Model parameters
 PAST_TRAJECTORY_TIME = 2.5

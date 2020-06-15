@@ -298,8 +298,8 @@ class MultiAgentNetwork(NNClassifier):
 
             # traj_output: (n_batch, n_vehicles, intent_out)
             # or mean, or max
-            traj_output = torch.sum(traj_output, dim=1).squeeze()
-#             traj_output = torch.max(traj_output, dim=1)[0].squeeze()
+#             traj_output = torch.sum(traj_output, dim=1).squeeze()
+            traj_output = torch.max(traj_output, dim=1)[0].squeeze()
             # traj_output: (n_batch, intent_out)
             combined_output = torch.cat((scene_output, traj_output), dim=1)
             # combined_output: (nbatch, scene_out+intent_out)
