@@ -1,1 +1,0 @@
-{'loss': 1.0807404979582755, 'accuracy': tensor(45.5645, device='cuda:0')}{'loss': 1.0736381469234344, 'accuracy': tensor(45.6653, device='cuda:0')}

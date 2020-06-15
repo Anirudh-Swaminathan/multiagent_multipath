@@ -25,7 +25,6 @@ nuscenes_devkit
 ./data/*
 
 #ignore model outputs
-./outputs
 ./models/output/*
 
 #ignore config file

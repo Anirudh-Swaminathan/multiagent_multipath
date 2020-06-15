@@ -96,7 +96,7 @@ class IntersectionScene:
     def gen_top(self, sp):
         # top lane => x in (intersection_bounds+vehicle_width/2, intersection_bounds-vehicle_width/2); y in ((40+vehicle_length/2), (40 + closeness))
         stop_posx = sp[0][0]
-        stop_posy = so[0][1]
+        stop_posy = sp[0][1]
         stop_pos = np.array([stop_posx, stop_posy])
         stop_vel = sp[1]
         # random choice of turn
@@ -124,10 +124,11 @@ class IntersectionScene:
         sl_posy = sp[0][1]
         sl_pos = np.array([sl_posx, sl_posy])
         # velocity direction
-        sp_vel = sp[1]
+        sl_vel = sp[1]
         # random intention
         sl_int = sp[2]
         # compute the goal positions and velocities
+        print(sl_int)
         if sl_int == FW or sl_int == SP:
             sl_gvel = np.copy(sl_vel)
             sl_gol = np.array([sl_posx + self.closeness, sl_posy])

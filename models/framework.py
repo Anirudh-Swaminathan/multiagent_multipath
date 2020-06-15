@@ -178,7 +178,7 @@ class FCNPastProcess(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
-        return F.log_softmax(x)
+        return F.relu(x)
 
 
 class IntentionEmbedding(nn.Module):
@@ -224,6 +224,7 @@ class ScoringFunction(nn.Module):
         # x: batch x fdim (scene+past_intent_embedding)
         y = self.score(x).squeeze()
         # y=self.sm(y)
+#         print("inside scoring forwrd: ", y.shape)
         return y
 
 
@@ -262,8 +263,8 @@ class MultiAgentNetwork(NNClassifier):
         # print("gt_future shape: ", gt_future.shape)
 
         scene_output = self.scene(img) #Shape: [1,32]
-#         print("==================================")
-#         print("Scene Output shape: ", scene_output.shape)
+        print("==================================")
+        print("Scene Output shape: ", scene_output.shape)
         
         n_batch = past_traj.shape[0]
         n_vehicles = past_traj.shape[1]
@@ -297,7 +298,7 @@ class MultiAgentNetwork(NNClassifier):
             # or mean, or max
             traj_output = torch.sum(traj_output, dim=1).squeeze()
             traj_output = torch.reshape(traj_output, [1, 32]) #Added to fix error during inference
-#             print("traj_output.shape: ", traj_output.shape)
+            print("traj_output.shape: ", traj_output.shape)
 
             # traj_output: (n_batch, intent_out)
             combined_output = torch.cat((scene_output, traj_output), dim=1)
@@ -305,6 +306,7 @@ class MultiAgentNetwork(NNClassifier):
             scores[:, mode] = self.score(combined_output)
         #scores = F.softmax(scores)
         scores = scores.to(self.device)
+#         print("Forward: ", scores.shape)
         return scores, gt_index.squeeze()
 
 

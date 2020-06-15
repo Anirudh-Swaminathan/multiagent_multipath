@@ -1,5 +1,6 @@
 #path parameters
-DATA_PATH = "../data/toydataset_resampled/"
+ACTUAL_PATH = "../data/dataset_vary"
+DATA_PATH = ACTUAL_PATH + "_resampled/"
 OUTPUT_PATH = "../outputs/"
 
 #Experiment details

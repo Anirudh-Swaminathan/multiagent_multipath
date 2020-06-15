@@ -37,6 +37,10 @@ def visualize(intents, inits, ls, vs):
         collided = c or collided
         ls.append(l)
         vs.append(v)
+        if collided:
+            print(i)
+            f_new = scene.plot_scene(ls, vs)
+            return f, f_new, collided
     f_new = scene.plot_scene(ls, vs)
     return f, f_new, collided
 

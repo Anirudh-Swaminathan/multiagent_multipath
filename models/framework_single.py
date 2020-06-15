@@ -178,7 +178,7 @@ class FCNPastProcess(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
-        return F.log_softmax(x)
+        return F.relu(x)
 
 
 class IntentionEmbedding(nn.Module):
