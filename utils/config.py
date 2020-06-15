@@ -5,7 +5,7 @@ OUTPUT_PATH = "../outputs/"
 
 
 #Experiment details
-EXP_NAME = "res_gpu_vary_epochs_150_downsample_pt_2_5_data2" #format: <res/vgg>_<cpu/gpu>_<original/largecollision>_<OPTIONAL: downsample>_epoch_<num_epochs>_pt_<PAST_TAJECTORY_LENGTH>/
+EXP_NAME = "res_gpu_vary_epochs_150_downsample_pt_2_5_data3" #format: <res/vgg>_<cpu/gpu>_<original/largecollision>_<OPTIONAL: downsample>_epoch_<num_epochs>_pt_<PAST_TAJECTORY_LENGTH>/
 
 BACKBONE = "RESNET" #RESNET | VGG
 
