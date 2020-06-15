@@ -13,7 +13,7 @@ SP=1
 TL=2
 TR=3
 
-def visualize(intents, inits, init_vs, filePath):
+def visualize(intents, inits, init_vs, n_agents, filePath):
     """
     :param intent - list of ints - len(intent)=n_agents - 0, 1, 2, 3 - integer representing one agent intent
     :param inits  - list - len(inits)=n_agent - represents initial position, direction, intent, goal position, goal direction for each agent in list 
@@ -36,7 +36,7 @@ def visualize(intents, inits, init_vs, filePath):
     vs = []
     total_frames = 6000
     collided = False
-    folder_name = 'ExampleScenes/{}/'.format(filePath)
+    folder_name = 'ExampleScenes/{}/{}/'.format(n_agents, filePath)
     try:
         os.mkdir(folder_name)
     except:
@@ -92,18 +92,18 @@ def main():
     
     for agent in range(n_agents):
         if agent == 0:
-            agent_pos = np.array([0, -120])
-            agent_dir = np.array([0, 1])
+            agent_pos = np.array([0, 120])
+            agent_dir = np.array([0, -1])
             agent_intent = intents[agent]
-            agent_goal_pos = np.array([-50,10])
-            agent_goal_dir = np.array([-1, 0])
+            agent_goal_pos = np.array([50,-10])
+            agent_goal_dir = np.array([1, 0])
             agent_init_vs = np.random.uniform(low=26, high=26)*agent_dir/np.linalg.norm(agent_dir)
         elif agent == 1:
-            agent_pos = np.array([-120, 0])
-            agent_dir = np.array([1, 0])
+            agent_pos = np.array([120, 0])
+            agent_dir = np.array([-1, 0])
             agent_intent = intents[agent]
-            agent_goal_pos = np.array([10,-50])
-            agent_goal_dir = np.array([0, -1])
+            agent_goal_pos = np.array([-10, 50])
+            agent_goal_dir = np.array([0, 1])
             agent_init_vs = np.random.uniform(low=26, high=26)*agent_dir/np.linalg.norm(agent_dir)
             
         agent_sp = (agent_pos, agent_dir, agent_intent, agent_goal_pos, agent_goal_dir)
@@ -115,7 +115,7 @@ def main():
     starting_points = np.array(list(np.array(starting_points)))
     init_vs = np.array(init_vs)
     
-    visualize(intents, starting_points, init_vs, 3)
+    visualize(intents, starting_points, init_vs, n_agents, 6)
     
 if __name__ == "__main__":
     main()
